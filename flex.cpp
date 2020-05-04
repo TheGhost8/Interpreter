@@ -4,7 +4,37 @@
 
 #include "flex.h"
 
-void AddLetters(std::unordered_map<std::string, std::string>* map, const std::string Destination)
+Flex::Flex(std::string file)
+{
+    FillDFA(/*&transition_table*/);
+    FillTypes(&all_types);
+    input_file.open(file);
+}
+
+bool Flex::HasLexem()
+{
+    /*input_file.get();
+    if (input_file.peek() == EOF)
+    {
+        return false;
+    }
+    input_file.unget();
+    return true;*/
+    char a = static_cast<char>(input_file.peek());
+    return input_file.peek() != EOF;
+}
+
+Token Flex::GetToken(/*std::unordered_map<std::string, std::unordered_map<std::string, std::string>>* transition_table, std::unordered_map<std::string, Token::Type>* all_types, std::ifstream* input_file*/)
+{
+    Token token = TakeToken(/*transition_table, all_types, input_file*/);
+    while (token.type == Token::TokenUndefined)
+    {
+        token = TakeToken(/*transition_table, all_types, input_file*/);
+    }
+    return token;
+}
+
+void Flex::AddLetters(std::unordered_map<std::string, std::string>* map, const std::string Destination)
 {
     int shift = 'A' - 'a';
     for (char i = 'a'; i <= 'z'; i++)
@@ -14,7 +44,7 @@ void AddLetters(std::unordered_map<std::string, std::string>* map, const std::st
     }
 }
 
-void AddNumbers(std::unordered_map<std::string, std::string>* map, const std::string Destination)
+void Flex::AddNumbers(std::unordered_map<std::string, std::string>* map, const std::string Destination)
 {
     for (char i = '0'; i <= '9'; i++)
     {
@@ -22,7 +52,7 @@ void AddNumbers(std::unordered_map<std::string, std::string>* map, const std::st
     }
 }
 
-void AddSeparators(std::unordered_map<std::string, std::string>* map, const std::string Destination)
+void Flex::AddSeparators(std::unordered_map<std::string, std::string>* map, const std::string Destination)
 {
     map->insert(std::pair<std::string, std::string>(":", Destination));
     map->insert(std::pair<std::string, std::string>(";", Destination));
@@ -44,7 +74,7 @@ void AddSeparators(std::unordered_map<std::string, std::string>* map, const std:
     map->insert(std::pair<std::string, std::string>(",", Destination));
 }
 
-void AddSpaces(std::unordered_map<std::string, std::string>* map, const std::string Destination)
+void Flex::AddSpaces(std::unordered_map<std::string, std::string>* map, const std::string Destination)
 {
     map->insert(std::pair<std::string, std::string>(" ", Destination));
     map->insert(std::pair<std::string, std::string>("\t", Destination));
@@ -52,7 +82,7 @@ void AddSpaces(std::unordered_map<std::string, std::string>* map, const std::str
     map->insert(std::pair<std::string, std::string>("\n", Destination));
 }
 
-void FillDFA(std::unordered_map<std::string, std::unordered_map<std::string, std::string>>* transition_table)
+void Flex::FillDFA(/*std::unordered_map<std::string, std::unordered_map<std::string, std::string>>* transition_table*/)
 {
     std::unordered_map<std::string, std::string> mask;
     AddLetters(&mask, "Text");
@@ -62,7 +92,7 @@ void FillDFA(std::unordered_map<std::string, std::unordered_map<std::string, std
     mask.insert(std::pair<std::string, std::string>("{", "Comment"));
     AddSeparators(&mask, "Start");
     AddSpaces(&mask, "Start");
-    transition_table->insert(std::pair<std::string, std::unordered_map<std::string, std::string>>("Start", mask));
+    transition_table.insert(std::pair<std::string, std::unordered_map<std::string, std::string>>("Start", mask));
 
     mask.clear();
     AddLetters(&mask, "Text");
@@ -70,21 +100,21 @@ void FillDFA(std::unordered_map<std::string, std::unordered_map<std::string, std
     mask.insert(std::pair<std::string, std::string>("_", "Text"));
     AddSeparators(&mask, "Start");
     AddSpaces(&mask, "Start");
-    transition_table->insert(std::pair<std::string, std::unordered_map<std::string, std::string>>("Text", mask));
+    transition_table.insert(std::pair<std::string, std::unordered_map<std::string, std::string>>("Text", mask));
 
     mask.clear();
     mask.insert(std::pair<std::string, std::string>("'", "EndQuote"));
-    transition_table->insert(std::pair<std::string, std::unordered_map<std::string, std::string>>("Quote", mask));
+    transition_table.insert(std::pair<std::string, std::unordered_map<std::string, std::string>>("Quote", mask));
 
     mask.clear();
     mask.insert(std::pair<std::string, std::string>("'", "Quote"));
     AddSeparators(&mask, "Start");
     AddSpaces(&mask, "Start");
-    transition_table->insert(std::pair<std::string, std::unordered_map<std::string, std::string>>("EndQuote", mask));
+    transition_table.insert(std::pair<std::string, std::unordered_map<std::string, std::string>>("EndQuote", mask));
 
     mask.clear();
     mask.insert(std::pair<std::string, std::string>("}", "Start"));
-    transition_table->insert(std::pair<std::string, std::unordered_map<std::string, std::string>>("Comment", mask));
+    transition_table.insert(std::pair<std::string, std::unordered_map<std::string, std::string>>("Comment", mask));
 
     mask.clear();
     AddNumbers(&mask, "Integer");
@@ -93,11 +123,11 @@ void FillDFA(std::unordered_map<std::string, std::unordered_map<std::string, std
     mask.insert(std::pair<std::string, std::string>("e", "E"));
     AddSeparators(&mask, "Start");
     AddSpaces(&mask, "Start");
-    transition_table->insert(std::pair<std::string, std::unordered_map<std::string, std::string>>("Integer", mask));
+    transition_table.insert(std::pair<std::string, std::unordered_map<std::string, std::string>>("Integer", mask));
 
     mask.clear();
     AddNumbers(&mask, "Decimal");
-    transition_table->insert(std::pair<std::string, std::unordered_map<std::string, std::string>>("Double", mask));
+    transition_table.insert(std::pair<std::string, std::unordered_map<std::string, std::string>>("Double", mask));
 
     mask.clear();
     AddNumbers(&mask, "Decimal");
@@ -105,22 +135,22 @@ void FillDFA(std::unordered_map<std::string, std::unordered_map<std::string, std
     mask.insert(std::pair<std::string, std::string>("e", "E"));
     AddSeparators(&mask, "Start");
     AddSpaces(&mask, "Start");
-    transition_table->insert(std::pair<std::string, std::unordered_map<std::string, std::string>>("Decimal", mask));
+    transition_table.insert(std::pair<std::string, std::unordered_map<std::string, std::string>>("Decimal", mask));
 
     mask.clear();
     AddNumbers(&mask, "Exponent");
     mask.insert(std::pair<std::string, std::string>("+", "Exponent"));
     mask.insert(std::pair<std::string, std::string>("-", "Exponent"));
-    transition_table->insert(std::pair<std::string, std::unordered_map<std::string, std::string>>("E", mask));
+    transition_table.insert(std::pair<std::string, std::unordered_map<std::string, std::string>>("E", mask));
 
     mask.clear();
     AddNumbers(&mask, "Exponent");
     AddSeparators(&mask, "Start");
     AddSpaces(&mask, "Start");
-    transition_table->insert(std::pair<std::string, std::unordered_map<std::string, std::string>>("Exponent", mask));
+    transition_table.insert(std::pair<std::string, std::unordered_map<std::string, std::string>>("Exponent", mask));
 }
 
-void FillTypes(std::unordered_map<std::string, Token::Type>* all_types)
+void Flex::FillTypes(std::unordered_map<std::string, Token::Type>* all_types)
 {
     (*all_types)["program"] = Token::TokenProgram;
     (*all_types)["boolean"] = Token::TokenBoolean;
@@ -137,6 +167,8 @@ void FillTypes(std::unordered_map<std::string, Token::Type>* all_types)
     (*all_types)["for"] = Token::TokenFor;
     (*all_types)["do"] = Token::TokenDo;
     (*all_types)["while"] = Token::TokenWhile;
+    (*all_types)["to"] = Token::TokenTo;
+    (*all_types)["downto"] = Token::TokenDownTo;
     (*all_types)[";"] = Token::TokenSemicolon;
     (*all_types)[":"] = Token::TokenColon;
     (*all_types)[":="] = Token::TokenAssign;
@@ -154,19 +186,24 @@ void FillTypes(std::unordered_map<std::string, Token::Type>* all_types)
     (*all_types)["."] = Token::TokenPoint;
     (*all_types)["["] = Token::TokenLeftSquareBracket;
     (*all_types)["]"] = Token::TokenRightSquareBracket;
+    (*all_types)["*"] = Token::TokenMultiply;
+    (*all_types)["\\"] = Token::TokenDivide;
+    (*all_types)["div"] = Token::TokenDiv;
+    (*all_types)["mod"] = Token::TokenMod;
+    (*all_types)[std::string(1, EOF)] = Token::TokenEOF;
 }
 
-bool SpacesCheck(const std::string* str)
+bool Flex::SpacesCheck(const std::string* str)
 {
     return (*str == " ") || (*str == "\t") || (*str == "\n") || (*str == "\r");
 }
 
-bool ComparisonAssignmentCheck(const std::string str)
+bool Flex::ComparisonAssignmentCheck(const std::string str)
 {
     return (str == "<=") || (str == ">=") || (str == "==") || (str == ":=") || (str == "<>");
 }
 
-bool ASCIICheck(const std::string str)
+bool Flex::ASCIICheck(const std::string str)
 {
     for (char i : str)
     {
@@ -178,50 +215,45 @@ bool ASCIICheck(const std::string str)
     return true;
 }
 
-void GetNextSymbol(std::ifstream* input_file, std::string* buffer)
+void Flex::GetNextSymbol(/*std::ifstream* input_file, */std::string* buffer)
 {
-    *buffer += static_cast<char>(input_file->get());
-    if (ComparisonAssignmentCheck(*buffer + static_cast<char>(input_file->peek())))
+    *buffer += static_cast<char>(input_file.get());
+    if (ComparisonAssignmentCheck(*buffer + static_cast<char>(input_file.peek())))
     {
-        *buffer += static_cast<char>(input_file->get());
+        *buffer += static_cast<char>(input_file.get());
     }
 }
 
-void UngetNextSymbol(std::ifstream* input_file, std::string* buffer)
+void Flex::UngetNextSymbol(/*std::ifstream* input_file,*/ std::string* buffer)
 {
     for (int i = buffer->length() - 1; i >= 0; --i)
     {
-        input_file->unget();
+        input_file.unget();
     }
 }
 
-bool HasLexem(std::ifstream* input_file)
-{
-    return input_file->peek() != EOF;
-}
-
-Token TakeToken(std::unordered_map<std::string, std::unordered_map<std::string, std::string>>* transition_table, std::unordered_map<std::string, Token::Type>* all_types, std::ifstream* input_file)
+Token Flex::TakeToken(/*std::unordered_map<std::string, std::unordered_map<std::string, std::string>>* transition_table, std::unordered_map<std::string, Token::Type>* all_types, std::ifstream* input_file*/)
 {
     std::string current_state = "Start";
     Token token;
     std::string buffer;
-    GetNextSymbol(input_file, &buffer);
-    while (((transition_table->at(current_state).count(buffer) != 0) || (current_state == "Comment") || (current_state == "Quote")) && (HasLexem(input_file)))
+    GetNextSymbol(/*input_file, */&buffer);
+    while (((transition_table.at(current_state).count(buffer) != 0) || (current_state == "Comment") || (current_state == "Quote")) && (HasLexem()))
     {
-        if (transition_table->at(current_state).count(buffer) != 0)
+        if (transition_table.at(current_state).count(buffer) != 0)
         {
-            if (transition_table->at(current_state).at(buffer) == "Start")
+            if (transition_table.at(current_state).at(buffer) == "Start")
             {
                 break;
             }
-            current_state = transition_table->at(current_state).at(buffer);
+            current_state = transition_table.at(current_state).at(buffer);
         }
         if ((current_state != "Comment") && (!SpacesCheck(&buffer)))
         {
             token.lexem += buffer;
         }
         buffer.clear();
-        GetNextSymbol(input_file, &buffer);
+        GetNextSymbol(/*input_file, */&buffer);
     }
     if (current_state == "Start")
     {
@@ -232,11 +264,11 @@ Token TakeToken(std::unordered_map<std::string, std::unordered_map<std::string, 
     }
     else
     {
-        UngetNextSymbol(input_file, &buffer);
+        UngetNextSymbol(/*input_file, */&buffer);
     }
-    if (all_types->count(token.lexem) != 0)
+    if (all_types.count(token.lexem) != 0)
     {
-        token.type = all_types->at(token.lexem);
+        token.type = all_types.at(token.lexem);
         return token;
     }
     if ((token.lexem == "true") || (token.lexem == "false"))
@@ -265,16 +297,5 @@ Token TakeToken(std::unordered_map<std::string, std::unordered_map<std::string, 
         return token;
     }
     token.type = Token::TokenUndefined;
-    return token;
-}
-
-Token GetToken(std::unordered_map<std::string, std::unordered_map<std::string, std::string>>* transition_table, std::unordered_map<std::string, Token::Type>* all_types, std::ifstream* input_file)
-{
-    Token token;
-    do
-    {
-        token = TakeToken(transition_table, all_types, input_file);
-    }
-    while ((token.type == Token::TokenUndefined) && (HasLexem(input_file)));
     return token;
 }

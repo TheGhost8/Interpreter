@@ -7,6 +7,8 @@
 #include <unordered_map>
 #include <vector>
 
+#pragma once
+
 #ifndef INTERPRETER_FLEX_H
 #define INTERPRETER_FLEX_H
 
@@ -35,6 +37,8 @@ struct Token
         TokenFor,
         TokenDo,
         TokenWhile,
+        TokenTo,
+        TokenDownTo,
 // todo - перечислить остальные ключевые слова
         TokenSemicolon,
         TokenColon,
@@ -53,39 +57,56 @@ struct Token
         TokenPoint,
         TokenLeftSquareBracket,
         TokenRightSquareBracket,
+        TokenMultiply,
+        TokenDivide,
+        TokenDiv,
+        TokenMod,
 // todo - перечислить остальные разделители
         TokenIdentifier,
         TokenUndefined,
+        TokenEOF,
     };
 
     Type type;
     std::string lexem;
 };
 
-void AddLetters(std::unordered_map<std::string, std::string>* map, std::string Destination);
+class Flex
+{
+public:
+    explicit Flex(std::string file);
 
-void AddNumbers(std::unordered_map<std::string, std::string>* map, std::string Destination);
+    bool HasLexem();
 
-void AddSeparators(std::unordered_map<std::string, std::string>* map, std::string Destination);
+    Token GetToken(/*std::unordered_map<std::string, std::unordered_map<std::string, std::string>>* transition_table, std::unordered_map<std::string, Token::Type>* all_types, std::ifstream* input_file*/);
 
-void AddSpaces(std::unordered_map<std::string, std::string>* map, std::string Destination);
+private:
 
-void FillDFA(std::unordered_map<std::string, std::unordered_map<std::string, std::string>>* transition_table);
+    std::unordered_map<std::string, std::unordered_map<std::string, std::string>> transition_table;
+    std::unordered_map<std::string, Token::Type> all_types;
+    std::ifstream input_file;
 
-void FillTypes(std::unordered_map<std::string, Token::Type>* all_types);
+    void AddLetters(std::unordered_map<std::string, std::string>* map, std::string Destination);
 
-bool SpacesCheck(const std::string* str);
+    void AddNumbers(std::unordered_map<std::string, std::string>* map, std::string Destination);
 
-bool ComparisonAssignmentCheck(std::string str);
+    void AddSeparators(std::unordered_map<std::string, std::string>* map, std::string Destination);
 
-bool ASCIICheck(std::string str);
+    void AddSpaces(std::unordered_map<std::string, std::string>* map, std::string Destination);
 
-void GetNextSymbol(std::ifstream* input_file, std::string* str);
+    void FillDFA(/*std::unordered_map<std::string, std::unordered_map<std::string, std::string>>* transition_table*/);
 
-void UngetNextSymbol(std::ifstream* input_file, std::string* str);
+    void FillTypes(std::unordered_map<std::string, Token::Type>* all_types);
 
-bool HasLexem(std::ifstream* input_file);
+    bool SpacesCheck(const std::string* str);
 
-Token TakeToken(std::unordered_map<std::string, std::unordered_map<std::string, std::string>>* transition_table, std::unordered_map<std::string, Token::Type>* all_types, std::ifstream* input_file);
+    bool ComparisonAssignmentCheck(std::string str);
 
-Token GetToken(std::unordered_map<std::string, std::unordered_map<std::string, std::string>>* transition_table, std::unordered_map<std::string, Token::Type>* all_types, std::ifstream* input_file);
+    bool ASCIICheck(std::string str);
+
+    void GetNextSymbol(/*std::ifstream* input_file, */std::string* str);
+
+    void UngetNextSymbol(/*std::ifstream* input_file, */std::string* str);
+
+    Token TakeToken(/*std::unordered_map<std::string, std::unordered_map<std::string, std::string>>* transition_table, std::unordered_map<std::string, Token::Type>* all_types, std::ifstream* input_file*/);
+};

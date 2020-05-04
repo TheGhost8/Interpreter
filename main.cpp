@@ -2,21 +2,27 @@
 #include <fstream>
 #include <unordered_map>
 #include "flex.h"
+#include "parser.h"
+
+#pragma once
 
 int main(int argc, char* argv[])
 {
-    std::unordered_map<std::string, std::unordered_map<std::string, std::string>> transition_table;
-    FillDFA(&transition_table);
+    /*std::unordered_map<std::string, std::unordered_map<std::string, std::string>> transition_table;
+
     std::unordered_map<std::string, Token::Type> all_types;
-    FillTypes(&all_types);
-    std::ifstream input_file(argv[1]);
+
+    std::ifstream input_file(argv[1]);*/
+    /*Flex flex(argv[1]);
     int i = 1;
-    Token token;
-    while (HasLexem(&input_file))
+    Token token = flex.GetToken();
+    while (token.type != Token::TokenEOF)
     {
-        token = GetToken(&transition_table, &all_types, &input_file);
         std::cout << i << ". " << token.lexem << "\n";
         i++;
-    }
+        token = flex.GetToken();
+    }*/
+    Parser parser(argv[1]);
+    parser.Start();
     return 0;
 }
