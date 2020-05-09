@@ -7,6 +7,7 @@
 #include <memory>
 #include <unordered_map>
 #include <vector>
+#include "type_tables.h"
 
 #pragma once
 
@@ -17,58 +18,6 @@
 
 struct Token
 {
-    enum Type
-    {
-        TokenBooleanConst,
-        TokenIntegerConst,
-        TokenDoubleConst,
-        TokenStringConst,
-        TokenProgram,
-        TokenBoolean,
-        TokenInteger,
-        TokenDouble,
-        TokenString,
-        TokenBegin,
-        TokenEnd,
-        TokenVar,
-        TokenWriteln,
-        TokenIf,
-        TokenGoTo,
-        TokenThen,
-        TokenElse,
-        TokenFor,
-        TokenDo,
-        TokenWhile,
-        TokenTo,
-        TokenDownTo,
-// todo - перечислить остальные ключевые слова
-        TokenSemicolon,
-        TokenColon,
-        TokenAssign,
-        TokenMore,
-        TokenLess,
-        TokenEqual,
-        TokenUnequal,
-        TokenMoreOrEqual,
-        TokenLessOrEqual,
-        TokenPlus,
-        TokenMinus,
-        TokenLeftParenthesis,
-        TokenRightParenthesis,
-        TokenComma,
-        TokenPoint,
-        TokenLeftSquareBracket,
-        TokenRightSquareBracket,
-        TokenMultiply,
-        TokenDivide,
-        TokenDiv,
-        TokenMod,
-// todo - перечислить остальные разделители
-        TokenIdentifier,
-        TokenUndefined,
-        TokenEOF,
-    };
-
     Type type;
     std::string lexem;
 };
@@ -85,7 +34,7 @@ public:
 private:
 
     std::unordered_map<std::string, std::unordered_map<std::string, std::string>> transition_table;
-    std::unordered_map<std::string, Token::Type> all_types;
+    std::unordered_map<std::string, Type> all_types;
     std::ifstream input_file;
 
     void AddLetters(std::unordered_map<std::string, std::string>* map, std::string Destination);
@@ -98,7 +47,7 @@ private:
 
     void FillDFA(/*std::unordered_map<std::string, std::unordered_map<std::string, std::string>>* transition_table*/);
 
-    void FillTypes(std::unordered_map<std::string, Token::Type>* all_types);
+    void FillTypes(std::unordered_map<std::string, Type>* all_types);
 
     bool SpacesCheck(const std::string* str);
 
