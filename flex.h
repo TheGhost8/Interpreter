@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <memory>
 #include <unordered_map>
 #include <vector>
 
@@ -32,6 +33,7 @@ struct Token
         TokenVar,
         TokenWriteln,
         TokenIf,
+        TokenGoTo,
         TokenThen,
         TokenElse,
         TokenFor,

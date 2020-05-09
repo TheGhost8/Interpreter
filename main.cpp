@@ -4,8 +4,6 @@
 #include "flex.h"
 #include "parser.h"
 
-#pragma once
-
 int main(int argc, char* argv[])
 {
     /*std::unordered_map<std::string, std::unordered_map<std::string, std::string>> transition_table;
@@ -24,5 +22,6 @@ int main(int argc, char* argv[])
     }*/
     Parser parser(argv[1]);
     parser.Start();
+    parser.TestOutput();
     return 0;
 }
