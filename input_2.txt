@@ -1,0 +1,14 @@
+program task;
+var
+    a : integer;
+    b : boolean;
+begin
+    a := 10;
+    a := a + 1;
+    writeln(a);
+    if false then
+        writeln(1);
+    else
+        writeln(2);
+end.
+
