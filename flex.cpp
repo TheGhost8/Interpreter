@@ -6,30 +6,22 @@
 
 Flex::Flex(std::string file)
 {
-    FillDFA(/*&transition_table*/);
+    FillDFA();
     FillTypes(&all_types);
     input_file.open(file);
 }
 
 bool Flex::HasLexem()
 {
-    /*input_file.get();
-    if (input_file.peek() == EOF)
-    {
-        return false;
-    }
-    input_file.unget();
-    return true;*/
-    char a = static_cast<char>(input_file.peek());
     return input_file.peek() != EOF;
 }
 
-Token Flex::GetToken(/*std::unordered_map<std::string, std::unordered_map<std::string, std::string>>* transition_table, std::unordered_map<std::string, Token::Type>* all_types, std::ifstream* input_file*/)
+Token Flex::GetToken()
 {
-    Token token = TakeToken(/*transition_table, all_types, input_file*/);
-    while (token.type == Token::TokenUndefined)
+    Token token = TakeToken();
+    while (token.type == TokenUndefined)
     {
-        token = TakeToken(/*transition_table, all_types, input_file*/);
+        token = TakeToken();
     }
     return token;
 }
@@ -82,7 +74,7 @@ void Flex::AddSpaces(std::unordered_map<std::string, std::string>* map, const st
     map->insert(std::pair<std::string, std::string>("\n", Destination));
 }
 
-void Flex::FillDFA(/*std::unordered_map<std::string, std::unordered_map<std::string, std::string>>* transition_table*/)
+void Flex::FillDFA()
 {
     std::unordered_map<std::string, std::string> mask;
     AddLetters(&mask, "Text");
@@ -150,47 +142,47 @@ void Flex::FillDFA(/*std::unordered_map<std::string, std::unordered_map<std::str
     transition_table.insert(std::pair<std::string, std::unordered_map<std::string, std::string>>("Exponent", mask));
 }
 
-void Flex::FillTypes(std::unordered_map<std::string, Token::Type>* all_types)
+void Flex::FillTypes(std::unordered_map<std::string, Type>* all_types)
 {
-    (*all_types)["program"] = Token::TokenProgram;
-    (*all_types)["boolean"] = Token::TokenBoolean;
-    (*all_types)["integer"] = Token::TokenInteger;
-    (*all_types)["double"] = Token::TokenDouble;
-    (*all_types)["string"] = Token::TokenString;
-    (*all_types)["begin"] = Token::TokenBegin;
-    (*all_types)["end"] = Token::TokenEnd;
-    (*all_types)["var"] = Token::TokenVar;
-    (*all_types)["writeln"] = Token::TokenWriteln;
-    (*all_types)["if"] = Token::TokenIf;
-    (*all_types)["then"] = Token::TokenThen;
-    (*all_types)["else"] = Token::TokenElse;
-    (*all_types)["for"] = Token::TokenFor;
-    (*all_types)["do"] = Token::TokenDo;
-    (*all_types)["while"] = Token::TokenWhile;
-    (*all_types)["to"] = Token::TokenTo;
-    (*all_types)["downto"] = Token::TokenDownTo;
-    (*all_types)[";"] = Token::TokenSemicolon;
-    (*all_types)[":"] = Token::TokenColon;
-    (*all_types)[":="] = Token::TokenAssign;
-    (*all_types)[">"] = Token::TokenMore;
-    (*all_types)["<"] = Token::TokenLess;
-    (*all_types)["="] = Token::TokenEqual;
-    (*all_types)["<>"] = Token::TokenUnequal;
-    (*all_types)[">="] = Token::TokenMoreOrEqual;
-    (*all_types)["<="] = Token::TokenLessOrEqual;
-    (*all_types)["+"] = Token::TokenPlus;
-    (*all_types)["-"] = Token::TokenMinus;
-    (*all_types)["("] = Token::TokenLeftParenthesis;
-    (*all_types)[")"] = Token::TokenRightParenthesis;
-    (*all_types)[","] = Token::TokenComma;
-    (*all_types)["."] = Token::TokenPoint;
-    (*all_types)["["] = Token::TokenLeftSquareBracket;
-    (*all_types)["]"] = Token::TokenRightSquareBracket;
-    (*all_types)["*"] = Token::TokenMultiply;
-    (*all_types)["\\"] = Token::TokenDivide;
-    (*all_types)["div"] = Token::TokenDiv;
-    (*all_types)["mod"] = Token::TokenMod;
-    (*all_types)[std::string(1, EOF)] = Token::TokenEOF;
+    (*all_types)["program"] = TokenProgram;
+    (*all_types)["boolean"] = TokenBoolean;
+    (*all_types)["integer"] = TokenInteger;
+    (*all_types)["double"] = TokenDouble;
+    (*all_types)["string"] = TokenString;
+    (*all_types)["begin"] = TokenBegin;
+    (*all_types)["end"] = TokenEnd;
+    (*all_types)["var"] = TokenVar;
+    (*all_types)["writeln"] = TokenWriteln;
+    (*all_types)["if"] = TokenIf;
+    (*all_types)["then"] = TokenThen;
+    (*all_types)["else"] = TokenElse;
+    (*all_types)["for"] = TokenFor;
+    (*all_types)["do"] = TokenDo;
+    (*all_types)["while"] = TokenWhile;
+    (*all_types)["to"] = TokenTo;
+    (*all_types)["downto"] = TokenDownTo;
+    (*all_types)[";"] = TokenSemicolon;
+    (*all_types)[":"] = TokenColon;
+    (*all_types)[":="] = TokenAssign;
+    (*all_types)[">"] = TokenMore;
+    (*all_types)["<"] = TokenLess;
+    (*all_types)["="] = TokenEqual;
+    (*all_types)["<>"] = TokenUnequal;
+    (*all_types)[">="] = TokenMoreOrEqual;
+    (*all_types)["<="] = TokenLessOrEqual;
+    (*all_types)["+"] = TokenPlus;
+    (*all_types)["-"] = TokenMinus;
+    (*all_types)["("] = TokenLeftParenthesis;
+    (*all_types)[")"] = TokenRightParenthesis;
+    (*all_types)[","] = TokenComma;
+    (*all_types)["."] = TokenPoint;
+    (*all_types)["["] = TokenLeftSquareBracket;
+    (*all_types)["]"] = TokenRightSquareBracket;
+    (*all_types)["*"] = TokenMultiply;
+    (*all_types)["\\"] = TokenDivide;
+    (*all_types)["div"] = TokenDiv;
+    (*all_types)["mod"] = TokenMod;
+    (*all_types)[std::string(1, EOF)] = TokenEOF;
 }
 
 bool Flex::SpacesCheck(const std::string* str)
@@ -215,7 +207,7 @@ bool Flex::ASCIICheck(const std::string str)
     return true;
 }
 
-void Flex::GetNextSymbol(/*std::ifstream* input_file, */std::string* buffer)
+void Flex::GetNextSymbol(std::string* buffer)
 {
     *buffer += static_cast<char>(input_file.get());
     if (ComparisonAssignmentCheck(*buffer + static_cast<char>(input_file.peek())))
@@ -224,7 +216,7 @@ void Flex::GetNextSymbol(/*std::ifstream* input_file, */std::string* buffer)
     }
 }
 
-void Flex::UngetNextSymbol(/*std::ifstream* input_file,*/ std::string* buffer)
+void Flex::UngetNextSymbol(std::string* buffer)
 {
     for (int i = buffer->length() - 1; i >= 0; --i)
     {
@@ -232,12 +224,12 @@ void Flex::UngetNextSymbol(/*std::ifstream* input_file,*/ std::string* buffer)
     }
 }
 
-Token Flex::TakeToken(/*std::unordered_map<std::string, std::unordered_map<std::string, std::string>>* transition_table, std::unordered_map<std::string, Token::Type>* all_types, std::ifstream* input_file*/)
+Token Flex::TakeToken()
 {
     std::string current_state = "Start";
     Token token;
     std::string buffer;
-    GetNextSymbol(/*input_file, */&buffer);
+    GetNextSymbol(&buffer);
     while (((transition_table.at(current_state).count(buffer) != 0) || (current_state == "Comment") || (current_state == "Quote")) && (HasLexem()))
     {
         if (transition_table.at(current_state).count(buffer) != 0)
@@ -253,7 +245,7 @@ Token Flex::TakeToken(/*std::unordered_map<std::string, std::unordered_map<std::
             token.lexem += buffer;
         }
         buffer.clear();
-        GetNextSymbol(/*input_file, */&buffer);
+        GetNextSymbol(&buffer);
     }
     if (current_state == "Start")
     {
@@ -264,7 +256,7 @@ Token Flex::TakeToken(/*std::unordered_map<std::string, std::unordered_map<std::
     }
     else
     {
-        UngetNextSymbol(/*input_file, */&buffer);
+        UngetNextSymbol(&buffer);
     }
     if (all_types.count(token.lexem) != 0)
     {
@@ -273,29 +265,29 @@ Token Flex::TakeToken(/*std::unordered_map<std::string, std::unordered_map<std::
     }
     if ((token.lexem == "true") || (token.lexem == "false"))
     {
-        token.type = Token::TokenBooleanConst;
+        token.type = TokenBooleanConst;
         return token;
     }
     if (current_state == "EndQuote")
     {
-        token.type = Token::TokenStringConst;
+        token.type = TokenStringConst;
         return token;
     }
     if (current_state == "Integer")
     {
-        token.type = Token::TokenIntegerConst;
+        token.type = TokenIntegerConst;
         return token;
     }
     if ((current_state == "Decimal") || (current_state == "Exponent"))
     {
-        token.type = Token::TokenDoubleConst;
+        token.type = TokenDoubleConst;
         return token;
     }
     if (current_state == "Text")
     {
-        token.type = Token::TokenIdentifier;
+        token.type = TokenIdentifier;
         return token;
     }
-    token.type = Token::TokenUndefined;
+    token.type = TokenUndefined;
     return token;
 }

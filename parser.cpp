@@ -4,9 +4,11 @@
 
 #include "parser.h"
 
+#include <memory>
+
 Parser::Parser(std::string file) : flex(file)
 {
-    FillTypeOperands();
+    FillFunctionsTypes();
     current_token = flex.GetToken();
     has_token = true;
 }
@@ -14,7 +16,7 @@ Parser::Parser(std::string file) : flex(file)
 void Parser::Start()
 {
     Program();
-    if ((flex.GetToken().type != Token::TokenEOF) || has_token)
+    if ((flex.GetToken().type != TokenEOF) || has_token)
     {
         Error("no lexems after end");
     }
@@ -23,14 +25,12 @@ void Parser::Start()
 void Parser::TestOutput() const
 {
     std::cout << "VARIABLES\n";
-    std::cout << "1. " << variables.at("x")->GetName() << " " << variables.at("x")->GetType() << std::endl;
-    std::cout << "1. " << variables.at("y")->GetName() << " " << variables.at("y")->GetType() << std::endl;
-    std::cout << "1. " << variables.at("z")->GetName() << " " << variables.at("z")->GetType() << std::endl;
+    std::cout << "1. " << variables.at("a")->GetName() << " " << variables.at("a")->GetType() << std::endl;
     std::cout << "\n";
     for (int i = 0; i < commands.size(); ++i)
     {
         std::cout << i << ". " << commands[i]->GetType();
-        if ((commands[i]->GetType() == Token::TokenIf) || (commands[i]->GetType() == Token::TokenGoTo))
+        if ((commands[i]->GetType() == TokenIf) || (commands[i]->GetType() == TokenGoTo))
         {
             std::cout << " " << static_cast<Go*>(commands[i].get())->GetIndex();
         }
@@ -38,106 +38,106 @@ void Parser::TestOutput() const
     }
 }
 
-void Parser::FillTypeOperands()
+void Parser::FillFunctionsTypes()
 {
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenBoolean, Token::TokenAssign, Token::TokenBoolean), Token::TokenBoolean));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenString, Token::TokenAssign, Token::TokenString), Token::TokenString));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenInteger, Token::TokenAssign, Token::TokenInteger), Token::TokenInteger));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenDouble, Token::TokenAssign, Token::TokenDouble), Token::TokenDouble));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenBoolean, TokenAssign, TokenBoolean), std::make_shared<AssignmentOperation<BooleanVariable, BooleanVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenString, TokenAssign, TokenString), std::make_shared<AssignmentOperation<StringVariable, StringVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenAssign, TokenInteger), std::make_shared<AssignmentOperation<IntegerVariable, IntegerVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenAssign, TokenDouble), std::make_shared<AssignmentOperation<DoubleVariable, DoubleVariable>>()));
 
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenString, Token::TokenPlus, Token::TokenString), Token::TokenString));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenInteger, Token::TokenPlus, Token::TokenInteger), Token::TokenInteger));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenDouble, Token::TokenPlus, Token::TokenDouble), Token::TokenDouble));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenBoolean, TokenPlus, TokenBoolean), std::make_shared<PlusOperation<BooleanVariable, BooleanVariable, BooleanVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenString, TokenPlus, TokenString), std::make_shared<PlusOperation<StringVariable, StringVariable, StringVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenPlus, TokenInteger), std::make_shared<PlusOperation<IntegerVariable, IntegerVariable, IntegerVariable>>()));
 
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenInteger, Token::TokenMinus, Token::TokenInteger), Token::TokenInteger));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenMinus, TokenInteger), std::make_shared<MinusOperation<IntegerVariable, IntegerVariable, IntegerVariable>>()));
 
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenInteger, Token::TokenPlus, Token::TokenDouble), Token::TokenDouble));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenInteger, Token::TokenMinus, Token::TokenDouble), Token::TokenDouble));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenDouble, Token::TokenPlus, Token::TokenInteger), Token::TokenDouble));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenDouble, Token::TokenMinus, Token::TokenInteger), Token::TokenDouble));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenDouble, Token::TokenPlus, Token::TokenDouble), Token::TokenDouble));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenDouble, Token::TokenMinus, Token::TokenDouble), Token::TokenDouble));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenPlus, TokenDouble), std::make_shared<PlusOperation<IntegerVariable, DoubleVariable, DoubleVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenPlus, TokenInteger), std::make_shared<PlusOperation<DoubleVariable, IntegerVariable, DoubleVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenPlus, TokenDouble), std::make_shared<PlusOperation<DoubleVariable, DoubleVariable, DoubleVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenMinus, TokenDouble), std::make_shared<MinusOperation<IntegerVariable, DoubleVariable, DoubleVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenMinus, TokenInteger), std::make_shared<MinusOperation<DoubleVariable, IntegerVariable, DoubleVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenMinus, TokenDouble), std::make_shared<MinusOperation<DoubleVariable, DoubleVariable, DoubleVariable>>()));
 
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenInteger, Token::TokenMultiply, Token::TokenInteger), Token::TokenInteger));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenInteger, Token::TokenDiv, Token::TokenInteger), Token::TokenInteger));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenInteger, Token::TokenMod, Token::TokenInteger), Token::TokenInteger));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenMultiply, TokenInteger), std::make_shared<MultiplyOperation<IntegerVariable, IntegerVariable, IntegerVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenDiv, TokenInteger), std::make_shared<DivOperation<IntegerVariable, IntegerVariable, IntegerVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenMod, TokenInteger), std::make_shared<ModOperation<IntegerVariable, IntegerVariable, IntegerVariable>>()));
 
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenInteger, Token::TokenDivide, Token::TokenInteger), Token::TokenDouble));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenInteger, Token::TokenDivide, Token::TokenDouble), Token::TokenDouble));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenInteger, Token::TokenMultiply, Token::TokenDouble), Token::TokenDouble));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenDouble, Token::TokenDivide, Token::TokenInteger), Token::TokenDouble));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenDouble, Token::TokenMultiply, Token::TokenInteger), Token::TokenDouble));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenDouble, Token::TokenDivide, Token::TokenDouble), Token::TokenDouble));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenDouble, Token::TokenMultiply, Token::TokenDouble), Token::TokenDouble));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenDivide, TokenInteger), std::make_shared<DivideOperation<IntegerVariable, IntegerVariable, DoubleVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenDivide, TokenDouble), std::make_shared<DivideOperation<IntegerVariable, DoubleVariable, DoubleVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenDivide, TokenInteger), std::make_shared<DivideOperation<DoubleVariable, IntegerVariable, DoubleVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenDivide, TokenDouble), std::make_shared<DivideOperation<DoubleVariable, DoubleVariable, DoubleVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenMultiply, TokenDouble), std::make_shared<MultiplyOperation<IntegerVariable, DoubleVariable, DoubleVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenMultiply, TokenInteger), std::make_shared<MultiplyOperation<DoubleVariable, IntegerVariable, DoubleVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenMultiply, TokenDouble), std::make_shared<MultiplyOperation<DoubleVariable, DoubleVariable, DoubleVariable>>()));
 
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenBoolean, Token::TokenEqual, Token::TokenBoolean), Token::TokenBoolean));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenBoolean, Token::TokenUnequal, Token::TokenBoolean), Token::TokenBoolean));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenBoolean, Token::TokenLess, Token::TokenBoolean), Token::TokenBoolean));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenBoolean, Token::TokenMore, Token::TokenBoolean), Token::TokenBoolean));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenBoolean, Token::TokenLessOrEqual, Token::TokenBoolean), Token::TokenBoolean));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenBoolean, Token::TokenMoreOrEqual, Token::TokenBoolean), Token::TokenBoolean));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenString, Token::TokenEqual, Token::TokenString), Token::TokenBoolean));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenString, Token::TokenUnequal, Token::TokenString), Token::TokenBoolean));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenString, Token::TokenLess, Token::TokenString), Token::TokenBoolean));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenString, Token::TokenMore, Token::TokenString), Token::TokenBoolean));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenString, Token::TokenLessOrEqual, Token::TokenString), Token::TokenBoolean));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenString, Token::TokenMoreOrEqual, Token::TokenString), Token::TokenBoolean));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenBoolean, TokenEqual, TokenBoolean), std::make_shared<EqualOperation<BooleanVariable, BooleanVariable, BooleanVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenBoolean, TokenUnequal, TokenBoolean), std::make_shared<UnequalOperation<BooleanVariable, BooleanVariable, BooleanVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenBoolean, TokenMore, TokenBoolean), std::make_shared<MoreOperation<BooleanVariable, BooleanVariable, BooleanVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenBoolean, TokenLess, TokenBoolean), std::make_shared<LessOperation<BooleanVariable, BooleanVariable, BooleanVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenBoolean, TokenMoreOrEqual, TokenBoolean), std::make_shared<MoreOrEqualOperation<BooleanVariable, BooleanVariable, BooleanVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenBoolean, TokenLessOrEqual, TokenBoolean), std::make_shared<LessOrEqualOperation<BooleanVariable, BooleanVariable, BooleanVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenString, TokenEqual, TokenString), std::make_shared<EqualOperation<StringVariable, StringVariable, BooleanVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenString, TokenUnequal, TokenString), std::make_shared<UnequalOperation<StringVariable, StringVariable, BooleanVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenString, TokenMore, TokenString), std::make_shared<MoreOperation<StringVariable, StringVariable, BooleanVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenString, TokenLess, TokenString), std::make_shared<LessOperation<StringVariable, StringVariable, BooleanVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenString, TokenMoreOrEqual, TokenString), std::make_shared<MoreOrEqualOperation<StringVariable, StringVariable, BooleanVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenString, TokenLessOrEqual, TokenString), std::make_shared<LessOrEqualOperation<StringVariable, StringVariable, BooleanVariable>>()));
 
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenInteger, Token::TokenEqual, Token::TokenInteger), Token::TokenBoolean));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenInteger, Token::TokenUnequal, Token::TokenInteger), Token::TokenBoolean));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenInteger, Token::TokenLess, Token::TokenInteger), Token::TokenBoolean));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenInteger, Token::TokenMore, Token::TokenInteger), Token::TokenBoolean));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenInteger, Token::TokenLessOrEqual, Token::TokenInteger), Token::TokenBoolean));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenInteger, Token::TokenMoreOrEqual, Token::TokenInteger), Token::TokenBoolean));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenInteger, Token::TokenEqual, Token::TokenDouble), Token::TokenBoolean));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenInteger, Token::TokenUnequal, Token::TokenDouble), Token::TokenBoolean));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenInteger, Token::TokenLess, Token::TokenDouble), Token::TokenBoolean));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenInteger, Token::TokenMore, Token::TokenDouble), Token::TokenBoolean));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenInteger, Token::TokenLessOrEqual, Token::TokenDouble), Token::TokenBoolean));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenInteger, Token::TokenMoreOrEqual, Token::TokenDouble), Token::TokenBoolean));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenDouble, Token::TokenEqual, Token::TokenInteger), Token::TokenBoolean));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenDouble, Token::TokenUnequal, Token::TokenInteger), Token::TokenBoolean));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenDouble, Token::TokenLess, Token::TokenInteger), Token::TokenBoolean));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenDouble, Token::TokenMore, Token::TokenInteger), Token::TokenBoolean));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenDouble, Token::TokenLessOrEqual, Token::TokenInteger), Token::TokenBoolean));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenDouble, Token::TokenMoreOrEqual, Token::TokenInteger), Token::TokenBoolean));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenDouble, Token::TokenEqual, Token::TokenDouble), Token::TokenBoolean));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenDouble, Token::TokenUnequal, Token::TokenDouble), Token::TokenBoolean));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenDouble, Token::TokenLess, Token::TokenDouble), Token::TokenBoolean));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenDouble, Token::TokenMore, Token::TokenDouble), Token::TokenBoolean));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenDouble, Token::TokenLessOrEqual, Token::TokenDouble), Token::TokenBoolean));
-    operations_type.insert(std::pair<TupleOfTokens, Token::Type>(TupleOfTokens(Token::TokenDouble, Token::TokenMoreOrEqual, Token::TokenDouble), Token::TokenBoolean));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenEqual, TokenInteger), std::make_shared<EqualOperation<IntegerVariable, IntegerVariable, BooleanVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenUnequal, TokenInteger), std::make_shared<UnequalOperation<IntegerVariable, IntegerVariable, BooleanVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenMore, TokenInteger), std::make_shared<MoreOperation<IntegerVariable, IntegerVariable, BooleanVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenLess, TokenInteger), std::make_shared<LessOperation<IntegerVariable, IntegerVariable, BooleanVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenMoreOrEqual, TokenInteger), std::make_shared<MoreOrEqualOperation<IntegerVariable, IntegerVariable, BooleanVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenLessOrEqual, TokenInteger), std::make_shared<LessOrEqualOperation<IntegerVariable, IntegerVariable, BooleanVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenEqual, TokenDouble), std::make_shared<EqualOperation<IntegerVariable, DoubleVariable, BooleanVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenUnequal, TokenDouble), std::make_shared<UnequalOperation<IntegerVariable, DoubleVariable, BooleanVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenMore, TokenDouble), std::make_shared<MoreOperation<IntegerVariable, DoubleVariable, BooleanVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenLess, TokenDouble), std::make_shared<LessOperation<IntegerVariable, DoubleVariable, BooleanVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenMoreOrEqual, TokenDouble), std::make_shared<MoreOrEqualOperation<IntegerVariable, DoubleVariable, BooleanVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenLessOrEqual, TokenDouble), std::make_shared<LessOrEqualOperation<IntegerVariable, DoubleVariable, BooleanVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenEqual, TokenInteger), std::make_shared<EqualOperation<DoubleVariable, IntegerVariable, BooleanVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenUnequal, TokenInteger), std::make_shared<UnequalOperation<DoubleVariable, IntegerVariable, BooleanVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenMore, TokenInteger), std::make_shared<MoreOperation<DoubleVariable, IntegerVariable, BooleanVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenLess, TokenInteger), std::make_shared<LessOperation<DoubleVariable, IntegerVariable, BooleanVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenMoreOrEqual, TokenInteger), std::make_shared<MoreOrEqualOperation<DoubleVariable, IntegerVariable, BooleanVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenLessOrEqual, TokenInteger), std::make_shared<LessOrEqualOperation<DoubleVariable, IntegerVariable, BooleanVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenEqual, TokenDouble), std::make_shared<EqualOperation<DoubleVariable, DoubleVariable, BooleanVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenUnequal, TokenDouble), std::make_shared<UnequalOperation<DoubleVariable, DoubleVariable, BooleanVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenMore, TokenDouble), std::make_shared<MoreOperation<DoubleVariable, DoubleVariable, BooleanVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenLess, TokenDouble), std::make_shared<LessOperation<DoubleVariable, DoubleVariable, BooleanVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenMoreOrEqual, TokenDouble), std::make_shared<MoreOrEqualOperation<DoubleVariable, DoubleVariable, BooleanVariable>>()));
+    functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenLessOrEqual, TokenDouble), std::make_shared<LessOrEqualOperation<DoubleVariable, DoubleVariable, BooleanVariable>>()));
 }
 
 void Parser::Error(std::string lexem) const
 {
-    std::cout << "Expected: " << lexem; // TODO: errors
+    std::cout << "Expected: " << lexem;
     exit(0);
 }
 
-bool Parser::CheckToken(Token::Type required_type) const
+bool Parser::CheckToken(Type required_type) const
 {
     return current_token.type == required_type;
 }
 
 bool Parser::TypeCheck() const
 {
-    return CheckToken(Token::TokenBoolean) || CheckToken(Token::TokenString) || CheckToken(Token::TokenInteger) || CheckToken(Token::TokenDouble);
+    return CheckToken(TokenBoolean) || CheckToken(TokenString) || CheckToken(TokenInteger) || CheckToken(TokenDouble);
 }
 
 bool Parser::ConstantCheck() const
 {
-    return CheckToken(Token::TokenBooleanConst) || CheckToken(Token::TokenStringConst) || CheckToken(Token::TokenIntegerConst) || CheckToken(Token::TokenDoubleConst);
+    return CheckToken(TokenBooleanConst) || CheckToken(TokenStringConst) || CheckToken(TokenIntegerConst) || CheckToken(TokenDoubleConst);
 }
 
 bool Parser::MultiplyCheck() const
 {
-    return CheckToken(Token::TokenMultiply) || CheckToken(Token::TokenDivide) || CheckToken(Token::TokenDiv) || CheckToken(Token::TokenMod);
+    return CheckToken(TokenMultiply) || CheckToken(TokenDivide) || CheckToken(TokenDiv) || CheckToken(TokenMod);
 }
 
 bool Parser::RelationOperatorCheck() const
 {
-    return CheckToken(Token::TokenEqual) || CheckToken(Token::TokenUnequal) || CheckToken(Token::TokenMore) || CheckToken(Token::TokenLess) || CheckToken(Token::TokenMoreOrEqual) || CheckToken(Token::TokenLessOrEqual);
+    return CheckToken(TokenEqual) || CheckToken(TokenUnequal) || CheckToken(TokenMore) || CheckToken(TokenLess) || CheckToken(TokenMoreOrEqual) || CheckToken(TokenLessOrEqual);
 }
 
 void Parser::NextToken()
@@ -151,41 +151,41 @@ void Parser::NextToken()
 
 std::shared_ptr<AbstractVariable> Parser::ConstantConversion(Token constant)
 {
-    if (constant.type == Token::TokenBooleanConst)
+    if (constant.type == TokenBooleanConst)
     {
-        BooleanVariable* new_variable = new BooleanVariable(&constant.lexem, Token::TokenBoolean, true, (constant.lexem == "true"));
+        BooleanVariable* new_variable = new BooleanVariable(constant.lexem, TokenBoolean, true, (constant.lexem == "true"));
         return std::shared_ptr<AbstractVariable>(new_variable);
     }
-    if (constant.type == Token::TokenStringConst)
+    if (constant.type == TokenStringConst)
     {
-        StringVariable* new_variable = new StringVariable(&constant.lexem, Token::TokenString, true, constant.lexem);
+        StringVariable* new_variable = new StringVariable(constant.lexem, TokenString, true, constant.lexem);
         return std::shared_ptr<AbstractVariable>(new_variable);
     }
-    if (constant.type == Token::TokenIntegerConst)
+    if (constant.type == TokenIntegerConst)
     {
-        IntegerVariable* new_variable = new IntegerVariable(&constant.lexem, Token::TokenInteger, true, std::stoi(constant.lexem));
+        IntegerVariable* new_variable = new IntegerVariable(constant.lexem, TokenInteger, true, std::stoi(constant.lexem));
         return std::shared_ptr<AbstractVariable>(new_variable);
     }
-    if (constant.type == Token::TokenDoubleConst)
+    if (constant.type == TokenDoubleConst)
     {
-        DoubleVariable* new_variable = new DoubleVariable(&constant.lexem, Token::TokenDouble, true, std::stod(constant.lexem));
+        DoubleVariable* new_variable = new DoubleVariable(constant.lexem, TokenDouble, true, std::stod(constant.lexem));
         return std::shared_ptr<AbstractVariable>(new_variable);
     }
 }
 
 void Parser::Program()
 {
-    if (current_token.type == Token::TokenProgram)
+    if (current_token.type == TokenProgram)
     {
         has_token = !has_token;
         NextToken();
-        if (!CheckToken(Token::TokenIdentifier))
+        if (!CheckToken(TokenIdentifier))
         {
             Error("Identifier");
         }
         has_token = !has_token;
         NextToken();
-        if (!CheckToken(Token::TokenSemicolon))
+        if (!CheckToken(TokenSemicolon))
         {
             Error(";");
         }
@@ -198,18 +198,18 @@ void Parser::Program()
 void Parser::VariableDeclarationBlock()
 {
     NextToken();
-    if (CheckToken(Token::TokenVar))
+    if (CheckToken(TokenVar))
     {
         has_token = !has_token;
         NextToken();
-        if (!CheckToken(Token::TokenIdentifier))
+        if (!CheckToken(TokenIdentifier))
         {
             Error("Identifier");
         }
         has_token = !has_token;
         VariableDeclaration();
         NextToken();
-        while (CheckToken(Token::TokenIdentifier))
+        while (CheckToken(TokenIdentifier))
         {
             has_token = !has_token;
             VariableDeclaration();
@@ -223,11 +223,11 @@ void Parser::VariableDeclaration()
     std::vector<Token> variable_names;
     variable_names.emplace_back(current_token);
     NextToken();
-    while (CheckToken(Token::TokenComma))
+    while (CheckToken(TokenComma))
     {
         has_token = !has_token;
         NextToken();
-        if (!CheckToken(Token::TokenIdentifier))
+        if (!CheckToken(TokenIdentifier))
         {
             Error("Identifier");
         }
@@ -235,7 +235,7 @@ void Parser::VariableDeclaration()
         has_token = !has_token;
         NextToken();
     }
-    if (CheckToken(Token::TokenColon))
+    if (CheckToken(TokenColon))
     {
         has_token = !has_token;
         NextToken();
@@ -243,42 +243,42 @@ void Parser::VariableDeclaration()
         {
             switch (current_token.type)
             {
-                case Token::TokenBoolean:
+                case TokenBoolean:
                     while (!variable_names.empty())
                     {
                         variables.insert(std::pair<std::string, std::shared_ptr<AbstractVariable>>(variable_names.back().lexem, std::shared_ptr<AbstractVariable>(
-                                static_cast<AbstractVariable*>(new BooleanVariable(&variable_names.back().lexem, Token::TokenBoolean, false)))));
+                                static_cast<AbstractVariable*>(new BooleanVariable(variable_names.back().lexem, TokenBoolean, false)))));
                         variable_names.pop_back();
                     }
                     break;
-                case Token::TokenString:
+                case TokenString:
                      while (!variable_names.empty())
                      {
                          variables.insert(std::pair<std::string, std::shared_ptr<AbstractVariable>>(variable_names.back().lexem, std::shared_ptr<AbstractVariable>(
-                                 static_cast<AbstractVariable*>(new StringVariable(&variable_names.back().lexem, Token::TokenString, false)))));
+                                 static_cast<AbstractVariable*>(new StringVariable(variable_names.back().lexem, TokenString, false)))));
                          variable_names.pop_back();
                      }
                     break;
-                case Token::TokenInteger:
+                case TokenInteger:
                     while (!variable_names.empty())
                     {
                         variables.insert(std::pair<std::string, std::shared_ptr<AbstractVariable>>(variable_names.back().lexem, std::shared_ptr<AbstractVariable>(
-                                static_cast<AbstractVariable*>(new IntegerVariable(&variable_names.back().lexem, Token::TokenInteger, false)))));
+                                static_cast<AbstractVariable*>(new IntegerVariable(variable_names.back().lexem, TokenInteger, false)))));
                         variable_names.pop_back();
                     }
                     break;
-                case Token::TokenDouble:
+                case TokenDouble:
                     while (!variable_names.empty())
                     {
                         variables.insert(std::pair<std::string, std::shared_ptr<AbstractVariable>>(variable_names.back().lexem, std::shared_ptr<AbstractVariable>(
-                                static_cast<AbstractVariable*>(new DoubleVariable(&variable_names.back().lexem, Token::TokenDouble, false)))));
+                                static_cast<AbstractVariable*>(new DoubleVariable(variable_names.back().lexem, TokenDouble, false)))));
                         variable_names.pop_back();
                     }
                     break;
             }
             has_token = !has_token;
             NextToken();
-            if (!CheckToken(Token::TokenSemicolon))
+            if (!CheckToken(TokenSemicolon))
             {
                 Error(";");
             }
@@ -297,20 +297,20 @@ void Parser::VariableDeclaration()
 
 void Parser::MainBlock()
 {
-    if (CheckToken(Token::TokenBegin))
+    if (CheckToken(TokenBegin))
     {
         has_token = !has_token;
         NextToken();
-        while ((!CheckToken(Token::TokenEnd)) && flex.HasLexem())
+        while ((!CheckToken(TokenEnd)) && flex.HasLexem())
         {
             Statement();
             NextToken();
         }
-        if (CheckToken(Token::TokenEnd))
+        if (CheckToken(TokenEnd))
         {
             has_token = !has_token;
             NextToken();
-            if (!CheckToken(Token::TokenPoint))
+            if (!CheckToken(TokenPoint))
             {
                 Error(".");
             }
@@ -318,7 +318,6 @@ void Parser::MainBlock()
         }
         else
         {
-    void FillTypeOperands();
             Error("end");
         }
     }
@@ -330,27 +329,27 @@ void Parser::MainBlock()
 
 void Parser::Statement()
 {
-    if (CheckToken(Token::TokenFor))
+    if (CheckToken(TokenFor))
     {
         has_token = !has_token;
         For();
-    } else if (CheckToken(Token::TokenWhile))
+    } else if (CheckToken(TokenWhile))
     {
         has_token = !has_token;
         While();
-    } else if (CheckToken(Token::TokenIf))
+    } else if (CheckToken(TokenIf))
     {
         has_token = !has_token;
         If();
-    } else if (CheckToken(Token::TokenIdentifier))
+    } else if (CheckToken(TokenIdentifier))
     {
         has_token = !has_token;
         AssignmentStatement();
-    } else if (CheckToken(Token::TokenBegin))
+    } else if (CheckToken(TokenBegin))
     {
         has_token = !has_token;
         CompoundStatement();
-    } else if (CheckToken(Token::TokenWriteln))
+    } else if (CheckToken(TokenWriteln))
     {
         has_token = !has_token;
         Writeln();
@@ -363,34 +362,51 @@ void Parser::Statement()
 void Parser::Writeln()
 {
     NextToken();
-    if (!CheckToken(Token::TokenLeftParenthesis))
+    if (!CheckToken(TokenLeftParenthesis))
     {
         Error("(");
     }
     has_token = !has_token;
     NextToken();
-    if (!CheckToken(Token::TokenIdentifier) && (!ConstantCheck()))
+    if (!CheckToken(TokenIdentifier) && (!ConstantCheck()))
     {
         Error("identifier or constant");
     }
-    if (CheckToken(Token::TokenIdentifier))
+    DataPtr output_variable;
+    if (CheckToken(TokenIdentifier))
     {
-        commands.emplace_back(variables.at(current_token.lexem));
+        output_variable = variables.at(current_token.lexem);
+        commands.emplace_back(output_variable);
     }
     else
     {
-        commands.emplace_back(ConstantConversion(current_token));
+        output_variable = ConstantConversion(current_token);
+        commands.emplace_back(output_variable);
     }
-    commands.emplace_back(std::shared_ptr<Context>(new Print()));
+    switch (output_variable->GetType())
+    {
+        case TokenBoolean:
+            commands.emplace_back(std::make_shared<Print<BooleanVariable>>());
+            break;
+        case TokenString:
+            commands.emplace_back(std::make_shared<Print<StringVariable>>());
+            break;
+        case TokenInteger:
+            commands.emplace_back(std::make_shared<Print<IntegerVariable>>());
+            break;
+        case TokenDouble:
+            commands.emplace_back(std::make_shared<Print<DoubleVariable>>());
+            break;
+    }
     has_token = !has_token;
     NextToken();
-    if (!CheckToken(Token::TokenRightParenthesis))
+    if (!CheckToken(TokenRightParenthesis))
     {
         Error(")");
     }
     has_token = !has_token;
     NextToken();
-    if (!CheckToken(Token::TokenSemicolon))
+    if (!CheckToken(TokenSemicolon))
     {
         Error(";");
     }
@@ -400,16 +416,16 @@ void Parser::Writeln()
 void Parser::CompoundStatement()
 {
     NextToken();
-    while ((!CheckToken(Token::TokenEnd)) && flex.HasLexem())
+    while ((!CheckToken(TokenEnd)) && flex.HasLexem())
     {
         Statement();
         NextToken();
     }
-    if (CheckToken(Token::TokenEnd))
+    if (CheckToken(TokenEnd))
     {
         has_token = !has_token;
         NextToken();
-        if (!CheckToken(Token::TokenSemicolon))
+        if (!CheckToken(TokenSemicolon))
         {
             Error(";");
         }
@@ -424,19 +440,20 @@ void Parser::CompoundStatement()
 void Parser::AssignmentStatement()
 {
     commands.emplace_back(variables.at(current_token.lexem));
-    Token::Type first_type = variables.at(current_token.lexem)->GetType();
+    Type first_type = variables.at(current_token.lexem)->GetType();
     NextToken();
-    if (CheckToken(Token::TokenAssign))
+    if (CheckToken(TokenAssign))
     {
         has_token = !has_token;
-        Token::Type second_type = Expression();
-        if (operations_type.count(TupleOfTokens(first_type, Token::TokenAssign, second_type)) == 0)
+        Type second_type = Expression();
+        TupleOfTokens current_operation(first_type, TokenAssign, second_type);
+        if (operations_type.count(current_operation) == 0)
         {
             Error("correct types of operands in assignment");
         }
-        commands.emplace_back(std::shared_ptr<Context>(new AssignmentOperation()));
+        commands.emplace_back(functions_types.at(current_operation));
         NextToken();
-        if (!CheckToken(Token::TokenSemicolon))
+        if (!CheckToken(TokenSemicolon))
         {
             Error(";");
         }
@@ -448,9 +465,9 @@ void Parser::AssignmentStatement()
     }
 }
 
-Token::Type Parser::Expression()
+Type Parser::Expression()
 {
-    Token::Type return_type, operation_type, second_operand;
+    Type return_type, operation_type, second_operand;
     NextToken();
     return_type = SimpleExpression();
     NextToken();
@@ -459,59 +476,61 @@ Token::Type Parser::Expression()
         operation_type = RelationOperator();
         NextToken();
         second_operand = SimpleExpression();
-        if (operations_type.count(TupleOfTokens(return_type, operation_type, second_operand)) == 0)
+        TupleOfTokens current_operation(return_type, operation_type, second_operand);
+        if (operations_type.count(current_operation) == 0)
         {
             Error("correct types of operands in relation operation");
         }
-        return_type = operations_type.at(TupleOfTokens(return_type, operation_type, second_operand));
-        switch (operation_type)
+        return_type = operations_type.at(current_operation);
+        commands.emplace_back(functions_types.at(current_operation));
+        /*switch (operation_type)
         {
-            case Token::TokenEqual:
-                commands.emplace_back(std::shared_ptr<Context>(new EqualOperation()));
+            case TokenEqual:
+                commands.emplace_back(std::shared_ptr<Data>(new EqualOperation()));
                 break;
-            case Token::TokenUnequal:
-                commands.emplace_back(std::shared_ptr<Context>(new UnequalOperation()));
+            case TokenUnequal:
+                commands.emplace_back(std::shared_ptr<Data>(new UnequalOperation()));
                 break;
-            case Token::TokenMore:
-                commands.emplace_back(std::shared_ptr<Context>(new MoreOperation()));
+            case TokenMore:
+                commands.emplace_back(std::shared_ptr<Data>(new MoreOperation()));
                 break;
-            case Token::TokenLess:
-                commands.emplace_back(std::shared_ptr<Context>(new LessOperation()));
+            case TokenLess:
+                commands.emplace_back(std::shared_ptr<Data>(new LessOperation()));
                 break;
-            case Token::TokenMoreOrEqual:
-                commands.emplace_back(std::shared_ptr<Context>(new MoreOrEqualOperation()));
+            case TokenMoreOrEqual:
+                commands.emplace_back(std::shared_ptr<Data>(new MoreOrEqualOperation()));
                 break;
-            case Token::TokenLessOrEqual:
-                commands.emplace_back(std::shared_ptr<Context>(new LessOrEqualOperation()));
+            case TokenLessOrEqual:
+                commands.emplace_back(std::shared_ptr<Data>(new LessOrEqualOperation()));
                 break;
-        }
+        }*/
         NextToken();
     }
     return return_type;
 }
 
-Token::Type Parser::RelationOperator()
+Type Parser::RelationOperator()
 {
     has_token = !has_token;
     return current_token.type;
 }
 
-Token::Type Parser::SimpleExpression()
+Type Parser::SimpleExpression()
 {
-    Token::Type return_type, operation_type, second_operand;
-    if (CheckToken(Token::TokenIdentifier) || ConstantCheck() || CheckToken(Token::TokenLeftParenthesis))
+    Type return_type, operation_type, second_operand;
+    if (CheckToken(TokenIdentifier) || ConstantCheck() || CheckToken(TokenLeftParenthesis))
     {
         return_type = Term();
     }
-    else if (CheckToken(Token::TokenPlus) || CheckToken(Token::TokenMinus))
+    else if (CheckToken(TokenPlus) || CheckToken(TokenMinus))
     {
         Token unary_zero;
         unary_zero.lexem = "0";
-        unary_zero.type = Token::TokenIntegerConst;
+        unary_zero.type = TokenIntegerConst;
         commands.emplace_back(ConstantConversion(unary_zero));
         operation_type = Sign();
         NextToken();
-        if (CheckToken(Token::TokenIdentifier) || ConstantCheck() || CheckToken(Token::TokenLeftParenthesis))
+        if (CheckToken(TokenIdentifier) || ConstantCheck() || CheckToken(TokenLeftParenthesis))
         {
             return_type = Term();
         }
@@ -519,26 +538,28 @@ Token::Type Parser::SimpleExpression()
         {
             Error("term");
         }
-        switch (operation_type)
+        TupleOfTokens current_operation(TokenInteger, operation_type, return_type);
+        commands.emplace_back(functions_types.at(current_operation));
+        /*switch (operation_type)
         {
-            case Token::TokenPlus:
-                commands.emplace_back(std::shared_ptr<Context>(new PlusOperation()));
+            case TokenPlus:
+                commands.emplace_back(std::shared_ptr<Data>(new PlusOperation()));
                 break;
-            case Token::TokenMinus:
-                commands.emplace_back(std::shared_ptr<Context>(new MinusOperation()));
+            case TokenMinus:
+                commands.emplace_back(std::shared_ptr<Data>(new MinusOperation()));
                 break;
-        }
+        }*/
     }
     else
     {
         Error("sign or term");
     }
     NextToken();
-    while (CheckToken(Token::TokenPlus) || CheckToken(Token::TokenMinus))
+    while (CheckToken(TokenPlus) || CheckToken(TokenMinus))
     {
         operation_type = Sign();
         NextToken();
-        if (CheckToken(Token::TokenIdentifier) || ConstantCheck() || CheckToken(Token::TokenLeftParenthesis))
+        if (CheckToken(TokenIdentifier) || ConstantCheck() || CheckToken(TokenLeftParenthesis))
         {
             second_operand = Term();
         }
@@ -546,41 +567,43 @@ Token::Type Parser::SimpleExpression()
         {
             Error("term");
         }
-        if (operations_type.count(TupleOfTokens(return_type, operation_type, second_operand)) == 0)
+        TupleOfTokens current_operation(return_type, operation_type, second_operand);
+        if (operations_type.count(current_operation) == 0)
         {
             Error("correct types of operands in plus/minus operation");
         }
-        return_type = operations_type.at(TupleOfTokens(return_type, operation_type, second_operand));
-        switch (operation_type)
+        return_type = operations_type.at(current_operation);
+        commands.emplace_back(functions_types.at(current_operation));
+        /*switch (operation_type)
         {
-            case Token::TokenPlus:
-                commands.emplace_back(std::shared_ptr<Context>(new PlusOperation()));
+            case TokenPlus:
+                commands.emplace_back(std::shared_ptr<Data>(new PlusOperation()));
                 break;
-            case Token::TokenMinus:
-                commands.emplace_back(std::shared_ptr<Context>(new MinusOperation()));
+            case TokenMinus:
+                commands.emplace_back(std::shared_ptr<Data>(new MinusOperation()));
                 break;
-        }
+        }*/
         NextToken();
     }
     return return_type;
 }
 
-Token::Type Parser::Sign()
+Type Parser::Sign()
 {
     has_token = !has_token;
     return current_token.type;
 }
 
-Token::Type Parser::Term()
+Type Parser::Term()
 {
-    Token::Type return_type = Factor();
+    Type return_type = Factor();
     NextToken();
     while (MultiplyCheck())
     {
-        Token::Type operation_type = MultiplicationOperator();
+        Type operation_type = MultiplicationOperator();
         NextToken();
-        Token::Type second_operand;
-        if (CheckToken(Token::TokenIdentifier) || ConstantCheck() || CheckToken(Token::TokenLeftParenthesis))
+        Type second_operand;
+        if (CheckToken(TokenIdentifier) || ConstantCheck() || CheckToken(TokenLeftParenthesis))
         {
              second_operand = Factor();
         }
@@ -588,40 +611,42 @@ Token::Type Parser::Term()
         {
             Error("factor");
         }
-        if (operations_type.count(TupleOfTokens(return_type, operation_type, second_operand)) == 0)
+        TupleOfTokens current_operation(return_type, operation_type, second_operand);
+        if (operations_type.count(current_operation) == 0)
         {
             Error("correct types of operands in multiplication operation");
         }
-        return_type = operations_type.at(TupleOfTokens(return_type, operation_type, second_operand));
-        switch (operation_type)
+        return_type = operations_type.at(current_operation);
+        commands.emplace_back(functions_types.at(current_operation));
+        /*switch (operation_type)
         {
-            case Token::TokenMultiply:
-                commands.emplace_back(std::shared_ptr<Context>(new MultiplyOperation()));
+            case TokenMultiply:
+                commands.emplace_back(std::shared_ptr<Data>(new MultiplyOperation()));
                 break;
-            case Token::TokenDivide:
-                commands.emplace_back(std::shared_ptr<Context>(new DivideOperation()));
+            case TokenDivide:
+                commands.emplace_back(std::shared_ptr<Data>(new DivideOperation()));
                 break;
-            case Token::TokenDiv:
-                commands.emplace_back(std::shared_ptr<Context>(new DivOperation()));
+            case TokenDiv:
+                commands.emplace_back(std::shared_ptr<Data>(new DivOperation()));
                 break;
-            case Token::TokenMod:
-                commands.emplace_back(std::shared_ptr<Context>(new ModOperation()));
+            case TokenMod:
+                commands.emplace_back(std::shared_ptr<Data>(new ModOperation()));
                 break;
-        }
+        }*/
         NextToken();
     }
     return return_type;
 }
 
-Token::Type Parser::MultiplicationOperator()
+Type Parser::MultiplicationOperator()
 {
     has_token = !has_token;
     return current_token.type;
 }
 
-Token::Type Parser::Factor()
+Type Parser::Factor()
 {
-    if (CheckToken(Token::TokenIdentifier))
+    if (CheckToken(TokenIdentifier))
     {
         has_token = !has_token;
         commands.emplace_back(variables.at(current_token.lexem));
@@ -634,12 +659,12 @@ Token::Type Parser::Factor()
         commands.emplace_back(temporary_ptr);
         return temporary_ptr->GetType();
     }
-    if (CheckToken(Token::TokenLeftParenthesis))
+    if (CheckToken(TokenLeftParenthesis))
     {
         has_token = !has_token;
-        Token::Type return_type = Expression();
+        Type return_type = Expression();
         NextToken();
-        if (!CheckToken(Token::TokenRightParenthesis))
+        if (!CheckToken(TokenRightParenthesis))
         {
             Error(")");
         }
@@ -654,29 +679,28 @@ Token::Type Parser::Factor()
 
 void Parser::If()
 {
-    Token::Type condition_type = Expression();
-    if (condition_type != Token::TokenBoolean)
+    Type condition_type = Expression();
+    if (condition_type != TokenBoolean)
     {
         Error("boolean expression in if");
     }
     OperationIndex remember_position = commands.size();
-    commands.emplace_back(std::shared_ptr<Context>(new Context()));
-    if (CheckToken(Token::TokenThen))
+    commands.emplace_back(std::shared_ptr<Data>(new Data()));
+    if (CheckToken(TokenThen))
     {
         has_token = !has_token;
         NextToken();
         Statement();
-        commands[remember_position] = std::shared_ptr<Context>(new IfGo(commands.size(), Token::TokenIf));
+        commands[remember_position] = std::shared_ptr<Data>(new IfGo(commands.size(), TokenIf));
         NextToken();
-        if (CheckToken(Token::TokenElse))
+        if (CheckToken(TokenElse))
         {
-            commands[remember_position] = std::shared_ptr<Context>(new IfGo(commands.size() + 1, Token::TokenIf));
             remember_position = commands.size();
-            commands.emplace_back(std::shared_ptr<Context>(new Context()));
+            commands.emplace_back(std::shared_ptr<Data>(new Data()));
             has_token = !has_token;
             NextToken();
             Statement();
-            commands[remember_position] = std::shared_ptr<Context>(new Go(commands.size(), Token::TokenGoTo));
+            commands[remember_position] = std::shared_ptr<Data>(new Go(commands.size(), TokenGoTo));
         }
     }
     else
@@ -691,27 +715,27 @@ void Parser::While()
     NextToken();
     Expression();
     OperationIndex remember_position = commands.size();
-    commands.emplace_back(std::shared_ptr<Context>(new Context()));
+    commands.emplace_back(std::shared_ptr<Data>(new Data()));
     NextToken();
-    if (!CheckToken(Token::TokenDo))
+    if (!CheckToken(TokenDo))
     {
         Error("do");
     }
     has_token = !has_token;
     NextToken();
     Statement();
-    commands.emplace_back(std::shared_ptr<Context>(new Go(remember_position, Token::TokenGoTo)));
-    commands[remember_position] = std::shared_ptr<Context>(new IfGo(commands.size(), Token::TokenIf));
+    commands.emplace_back(std::shared_ptr<Data>(new Go(remember_position, TokenGoTo)));
+    commands[remember_position] = std::shared_ptr<Data>(new IfGo(commands.size(), TokenIf));
 }
 
 void Parser::For()
 {
     NextToken();
-    if (CheckToken(Token::TokenIdentifier))
+    if (CheckToken(TokenIdentifier))
     {
         has_token = !has_token;
         NextToken();
-        if (!CheckToken(Token::TokenAssign))
+        if (!CheckToken(TokenAssign))
         {
             Error(":=");
         }
@@ -719,7 +743,7 @@ void Parser::For()
         NextToken();
         ForList();
         NextToken();
-        if (!CheckToken(Token::TokenDo))
+        if (!CheckToken(TokenDo))
         {
             Error("do");
         }
@@ -737,7 +761,7 @@ void Parser::ForList()
 {
     Expression();
     NextToken();
-    if (CheckToken(Token::TokenTo) || CheckToken(Token::TokenDownTo))
+    if (CheckToken(TokenTo) || CheckToken(TokenDownTo))
     {
         has_token = !has_token;
         NextToken();

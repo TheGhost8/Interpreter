@@ -9,18 +9,23 @@
 
 #include <stack>
 #include "flex.h"
-#include "variable.h"
 #include "parser.h"
+#include "data.h"
 
 #pragma once
+
+using OperationIndex = std::size_t;
 
 class Interpreter
 {
 public:
     Interpreter(std::string input_file) : parser(input_file) {}
 
+    void Execute();
+
 private:
-    // second table
     Parser parser;
-    std::stack<Context> stack;
+    Data::Context program_stack;
+
+    bool CheckValue(Type type);
 };

@@ -3,21 +3,22 @@
 //
 
 #include "flex.h"
-#include "context.h"
+#include "data.h"
 
 #pragma once
 
-#ifndef INTERPRETER_VARIABLE_H
-#define INTERPRETER_VARIABLE_H
+using DataPtr = std::shared_ptr<Data>;
+using Stack = std::stack<DataPtr>;
 
-#endif //INTERPRETER_VARIABLE_H
-
-struct AbstractVariable : Context
+struct AbstractVariable : Data
 {
+    using VariablePtr = std::shared_ptr<AbstractVariable>;
+
 public:
-    AbstractVariable(const std::string* new_name, Token::Type new_type, bool if_constant);
+    AbstractVariable(std::string new_name, Type new_type, bool if_constant);
     std::string GetName() const;
     bool Constant() const;
+    void Do(Context& context) final;
 
 private:
     std::string name;
@@ -27,7 +28,7 @@ private:
 struct BooleanVariable : AbstractVariable
 {
 public:
-    BooleanVariable(const std::string* new_name, Token::Type new_type, bool if_constant, bool new_value = false);
+    BooleanVariable(std::string new_name, Type new_type, bool if_constant, bool new_value = false);
     bool GetValue() const;
     bool ChangeValue(bool new_value);
 
@@ -38,9 +39,9 @@ private:
 struct StringVariable : AbstractVariable
 {
 public:
-    StringVariable(const std::string* new_name, Token::Type new_type, bool if_constant, std::string new_value = "");
+    StringVariable(std::string new_name, Type new_type, bool if_constant, std::string new_value = "");
     std::string GetValue() const;
-    bool ChangeValue(const std::string* new_value);
+    bool ChangeValue(std::string new_value);
 
 private:
     std::string value;
@@ -49,9 +50,9 @@ private:
 struct IntegerVariable : AbstractVariable
 {
 public:
-    IntegerVariable(const std::string* new_name, Token::Type new_type, bool if_constant, int new_value = 0);
+    IntegerVariable(std::string new_name, Type new_type, bool if_constant, int new_value = 0);
     int GetValue() const;
-    bool ChangeValue(const int* new_value);
+    bool ChangeValue(int new_value);
 
 private:
     int value;
@@ -60,9 +61,9 @@ private:
 struct DoubleVariable : AbstractVariable
 {
 public:
-    DoubleVariable(const std::string* new_name, Token::Type new_type, bool if_constant, double new_value = 0);
+    DoubleVariable(std::string new_name, Type new_type, bool if_constant, double new_value = 0);
     double GetValue() const;
-    bool ChangeValue(const double* new_value);
+    bool ChangeValue(double new_value);
 
 private:
     double value;
