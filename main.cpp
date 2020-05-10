@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
         Interpreter interpreter(argv[1]);
         interpreter.Execute();
     }
-    catch (const std::string exc)
+    catch (const std::string& exc)
     {
         std::cout << exc << std::endl;
         return 1;
