@@ -109,7 +109,7 @@ void Parser::FillFunctionsTypes()
     functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenLessOrEqual, TokenDouble), std::make_shared<LessOrEqualOperation<DoubleVariable, DoubleVariable, BooleanVariable>>()));
 }
 
-void Parser::Error(std::string lexem) const
+[[no_return]] void Parser::Error(std::string lexem) const
 {
     throw "Expected: " + lexem;
 }
@@ -670,10 +670,7 @@ Type Parser::Factor()
         has_token = !has_token;
         return return_type;
     }
-    else
-    {
-        Error("WTF!?");
-    }
+    Error("WTF!?");
 }
 
 void Parser::If()
