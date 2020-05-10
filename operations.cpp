@@ -43,7 +43,7 @@ void MathOperation::Do(Context& context)
     {
         Error("correct type in operand 2 in poliz");
     }
-    context.stack.push(DoMath(VariablePtr(static_cast<AbstractVariable*>(operand1.get())), VariablePtr(static_cast<AbstractVariable*>(operand2.get()))));
+    context.stack.push(DoMath(*static_cast<AbstractVariable*>(operand1.get()), *static_cast<AbstractVariable*>(operand2.get())));
 }
 
 bool MathOperation::CheckVariable(DataPtr variable) const
