@@ -1,0 +1,16 @@
+program sample;
+var
+x : boolean; {some comment}
+y : integer;
+z : string;
+begin
+x := false;
+y := -10;
+z := 'abc'; {yet another comment}
+y := y * 7;
+writeln(z);
+if y = 10 then
+writeln('Oo');
+else
+writeln(2);
+end.

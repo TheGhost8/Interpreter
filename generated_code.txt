@@ -1,0 +1,68 @@
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenBoolean, Token::TokenAssign, Token::TokenBoolean), Token::TokenBoolean));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenString, Token::TokenAssign, Token::TokenString), Token::TokenString));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenInteger, Token::TokenAssign, Token::TokenInteger), Token::TokenInteger));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenDouble, Token::TokenAssign, Token::TokenDouble), Token::TokenDouble));
+
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenString, Token::TokenPlus, Token::TokenString), Token::TokenString));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenInteger, Token::TokenPlus, Token::TokenInteger), Token::TokenInteger));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenDouble, Token::TokenPlus, Token::TokenDouble), Token::TokenDouble));
+
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenInteger, Token::TokenMinus, Token::TokenInteger), Token::TokenInteger));
+
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenInteger, Token::TokenPlus, Token::TokenDouble), Token::TokenDouble));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenInteger, Token::TokenMinus, Token::TokenDouble), Token::TokenDouble));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenDouble, Token::TokenPlus, Token::TokenInteger), Token::TokenDouble));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenDouble, Token::TokenMinus, Token::TokenInteger), Token::TokenDouble));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenDouble, Token::TokenPlus, Token::TokenDouble), Token::TokenDouble));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenDouble, Token::TokenMinus, Token::TokenDouble), Token::TokenDouble));
+
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenInteger, Token::TokenMultiply, Token::TokenInteger), Token::TokenInteger));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenInteger, Token::TokenDiv, Token::TokenInteger), Token::TokenInteger));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenInteger, Token::TokenMod, Token::TokenInteger), Token::TokenInteger));
+
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenInteger, Token::TokenDivide, Token::TokenInteger), Token::TokenDouble));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenInteger, Token::TokenDivide, Token::TokenDouble), Token::TokenDouble));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenInteger, Token::TokenMultiply, Token::TokenDouble), Token::TokenDouble));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenDouble, Token::TokenDivide, Token::TokenInteger), Token::TokenDouble));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenDouble, Token::TokenMultiply, Token::TokenInteger), Token::TokenDouble));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenDouble, Token::TokenDivide, Token::TokenDouble), Token::TokenDouble));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenDouble, Token::TokenMultiply, Token::TokenDouble), Token::TokenDouble));
+
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenBoolean, Token::TokenEqual, Token::TokenBoolean), Token::TokenBoolean));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenBoolean, Token::TokenUnequal, Token::TokenBoolean), Token::TokenBoolean));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenBoolean, Token::TokenLess, Token::TokenBoolean), Token::TokenBoolean));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenBoolean, Token::TokenMore, Token::TokenBoolean), Token::TokenBoolean));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenBoolean, Token::TokenLessOrEqual, Token::TokenBoolean), Token::TokenBoolean));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenBoolean, Token::TokenMoreOrEqual, Token::TokenBoolean), Token::TokenBoolean));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenString, Token::TokenEqual, Token::TokenString), Token::TokenBoolean));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenString, Token::TokenUnequal, Token::TokenString), Token::TokenBoolean));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenString, Token::TokenLess, Token::TokenString), Token::TokenBoolean));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenString, Token::TokenMore, Token::TokenString), Token::TokenBoolean));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenString, Token::TokenLessOrEqual, Token::TokenString), Token::TokenBoolean));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenString, Token::TokenMoreOrEqual, Token::TokenString), Token::TokenBoolean));
+
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenInteger, Token::TokenEqual, Token::TokenInteger), Token::TokenBoolean));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenInteger, Token::TokenUnequal, Token::TokenInteger), Token::TokenBoolean));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenInteger, Token::TokenLess, Token::TokenInteger), Token::TokenBoolean));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenInteger, Token::TokenMore, Token::TokenInteger), Token::TokenBoolean));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenInteger, Token::TokenLessOrEqual, Token::TokenInteger), Token::TokenBoolean));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenInteger, Token::TokenMoreOrEqual, Token::TokenInteger), Token::TokenBoolean));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenInteger, Token::TokenEqual, Token::TokenDouble), Token::TokenBoolean));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenInteger, Token::TokenUnequal, Token::TokenDouble), Token::TokenBoolean));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenInteger, Token::TokenLess, Token::TokenDouble), Token::TokenBoolean));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenInteger, Token::TokenMore, Token::TokenDouble), Token::TokenBoolean));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenInteger, Token::TokenLessOrEqual, Token::TokenDouble), Token::TokenBoolean));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenInteger, Token::TokenMoreOrEqual, Token::TokenDouble), Token::TokenBoolean));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenDouble, Token::TokenEqual, Token::TokenInteger), Token::TokenBoolean));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenDouble, Token::TokenUnequal, Token::TokenInteger), Token::TokenBoolean));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenDouble, Token::TokenLess, Token::TokenInteger), Token::TokenBoolean));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenDouble, Token::TokenMore, Token::TokenInteger), Token::TokenBoolean));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenDouble, Token::TokenLessOrEqual, Token::TokenInteger), Token::TokenBoolean));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenDouble, Token::TokenMoreOrEqual, Token::TokenInteger), Token::TokenBoolean));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenDouble, Token::TokenEqual, Token::TokenDouble), Token::TokenBoolean));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenDouble, Token::TokenUnequal, Token::TokenDouble), Token::TokenBoolean));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenDouble, Token::TokenLess, Token::TokenDouble), Token::TokenBoolean));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenDouble, Token::TokenMore, Token::TokenDouble), Token::TokenBoolean));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenDouble, Token::TokenLessOrEqual, Token::TokenDouble), Token::TokenBoolean));
+operations_type.insert(std::pair<LValue, Token::Type>(LValue(Token::TokenDouble, Token::TokenMoreOrEqual, Token::TokenDouble), Token::TokenBoolean));
+

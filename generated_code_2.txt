@@ -1,0 +1,68 @@
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenBoolean, TokenAssign, TokenBoolean), std::make_shared<AssignmentOperation<BooleanVariable, BooleanVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenString, TokenAssign, TokenString), std::make_shared<AssignmentOperation<StringVariable, StringVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenAssign, TokenInteger), std::make_shared<AssignmentOperation<IntegerVariable, IntegerVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenAssign, TokenDouble), std::make_shared<AssignmentOperation<DoubleVariable, DoubleVariable>>()));
+
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenBoolean, TokenPlus, TokenBoolean), std::make_shared<PlusOperation<BooleanVariable, BooleanVariable, BooleanVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenString, TokenPlus, TokenString), std::make_shared<PlusOperation<StringVariable, StringVariable, StringVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenPlus, TokenInteger), std::make_shared<PlusOperation<IntegerVariable, IntegerVariable, IntegerVariable>>()));
+
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenMinus, TokenInteger), std::make_shared<MinusOperation<IntegerVariable, IntegerVariable, IntegerVariable>>()));
+
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenPlus, TokenDouble), std::make_shared<PlusOperation<IntegerVariable, DoubleVariable, DoubleVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenPlus, TokenInteger), std::make_shared<PlusOperation<DoubleVariable, IntegerVariable, DoubleVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenPlus, TokenDouble), std::make_shared<PlusOperation<DoubleVariable, DoubleVariable, DoubleVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenMinus, TokenDouble), std::make_shared<MinusOperation<IntegerVariable, DoubleVariable, DoubleVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenMinus, TokenInteger), std::make_shared<MinusOperation<DoubleVariable, IntegerVariable, DoubleVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenMinus, TokenDouble), std::make_shared<MinusOperation<DoubleVariable, DoubleVariable, DoubleVariable>>()));
+
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenMultiply, TokenInteger), std::make_shared<MultiplyOperation<IntegerVariable, IntegerVariable, IntegerVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenDiv, TokenInteger), std::make_shared<DivOperation<IntegerVariable, IntegerVariable, IntegerVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenMod, TokenInteger), std::make_shared<ModOperation<IntegerVariable, IntegerVariable, IntegerVariable>>()));
+
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenDivide, TokenInteger), std::make_shared<DivideOperation<IntegerVariable, IntegerVariable, DoubleVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenDivide, TokenDouble), std::make_shared<DivideOperation<IntegerVariable, DoubleVariable, DoubleVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenDivide, TokenInteger), std::make_shared<DivideOperation<DoubleVariable, IntegerVariable, DoubleVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenDivide, TokenDouble), std::make_shared<DivideOperation<DoubleVariable, DoubleVariable, DoubleVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenMultiply, TokenDouble), std::make_shared<MultiplyOperation<IntegerVariable, DoubleVariable, DoubleVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenMultiply, TokenInteger), std::make_shared<MultiplyOperation<DoubleVariable, IntegerVariable, DoubleVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenMultiply, TokenDouble), std::make_shared<MultiplyOperation<DoubleVariable, DoubleVariable, DoubleVariable>>()));
+
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenBoolean, TokenEqual, TokenBoolean), std::make_shared<EqualOperation<BooleanVariable, BooleanVariable, BooleanVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenBoolean, TokenUnequal, TokenBoolean), std::make_shared<UnequalOperation<BooleanVariable, BooleanVariable, BooleanVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenBoolean, TokenMore, TokenBoolean), std::make_shared<MoreOperation<BooleanVariable, BooleanVariable, BooleanVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenBoolean, TokenLess, TokenBoolean), std::make_shared<LessOperation<BooleanVariable, BooleanVariable, BooleanVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenBoolean, TokenMoreOrEqual, TokenBoolean), std::make_shared<MoreOrEqualOperation<BooleanVariable, BooleanVariable, BooleanVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenBoolean, TokenLessOrEqual, TokenBoolean), std::make_shared<LessOrEqualOperation<BooleanVariable, BooleanVariable, BooleanVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenString, TokenEqual, TokenString), std::make_shared<EqualOperation<StringVariable, StringVariable, BooleanVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenString, TokenUnequal, TokenString), std::make_shared<UnequalOperation<StringVariable, StringVariable, BooleanVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenString, TokenMore, TokenString), std::make_shared<MoreOperation<StringVariable, StringVariable, BooleanVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenString, TokenLess, TokenString), std::make_shared<LessOperation<StringVariable, StringVariable, BooleanVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenString, TokenMoreOrEqual, TokenString), std::make_shared<MoreOrEqualOperation<StringVariable, StringVariable, BooleanVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenString, TokenLessOrEqual, TokenString), std::make_shared<LessOrEqualOperation<StringVariable, StringVariable, BooleanVariable>>()));
+
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenEqual, TokenInteger), std::make_shared<EqualOperation<IntegerVariable, IntegerVariable, BooleanVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenUnequal, TokenInteger), std::make_shared<UnequalOperation<IntegerVariable, IntegerVariable, BooleanVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenMore, TokenInteger), std::make_shared<MoreOperation<IntegerVariable, IntegerVariable, BooleanVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenLess, TokenInteger), std::make_shared<LessOperation<IntegerVariable, IntegerVariable, BooleanVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenMoreOrEqual, TokenInteger), std::make_shared<MoreOrEqualOperation<IntegerVariable, IntegerVariable, BooleanVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenLessOrEqual, TokenInteger), std::make_shared<LessOrEqualOperation<IntegerVariable, IntegerVariable, BooleanVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenEqual, TokenDouble), std::make_shared<EqualOperation<IntegerVariable, DoubleVariable, BooleanVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenUnequal, TokenDouble), std::make_shared<UnequalOperation<IntegerVariable, DoubleVariable, BooleanVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenMore, TokenDouble), std::make_shared<MoreOperation<IntegerVariable, DoubleVariable, BooleanVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenLess, TokenDouble), std::make_shared<LessOperation<IntegerVariable, DoubleVariable, BooleanVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenMoreOrEqual, TokenDouble), std::make_shared<MoreOrEqualOperation<IntegerVariable, DoubleVariable, BooleanVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenInteger, TokenLessOrEqual, TokenDouble), std::make_shared<LessOrEqualOperation<IntegerVariable, DoubleVariable, BooleanVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenEqual, TokenInteger), std::make_shared<EqualOperation<DoubleVariable, IntegerVariable, BooleanVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenUnequal, TokenInteger), std::make_shared<UnequalOperation<DoubleVariable, IntegerVariable, BooleanVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenMore, TokenInteger), std::make_shared<MoreOperation<DoubleVariable, IntegerVariable, BooleanVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenLess, TokenInteger), std::make_shared<LessOperation<DoubleVariable, IntegerVariable, BooleanVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenMoreOrEqual, TokenInteger), std::make_shared<MoreOrEqualOperation<DoubleVariable, IntegerVariable, BooleanVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenLessOrEqual, TokenInteger), std::make_shared<LessOrEqualOperation<DoubleVariable, IntegerVariable, BooleanVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenEqual, TokenDouble), std::make_shared<EqualOperation<DoubleVariable, DoubleVariable, BooleanVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenUnequal, TokenDouble), std::make_shared<UnequalOperation<DoubleVariable, DoubleVariable, BooleanVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenMore, TokenDouble), std::make_shared<MoreOperation<DoubleVariable, DoubleVariable, BooleanVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenLess, TokenDouble), std::make_shared<LessOperation<DoubleVariable, DoubleVariable, BooleanVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenMoreOrEqual, TokenDouble), std::make_shared<MoreOrEqualOperation<DoubleVariable, DoubleVariable, BooleanVariable>>()));
+functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenLessOrEqual, TokenDouble), std::make_shared<LessOrEqualOperation<DoubleVariable, DoubleVariable, BooleanVariable>>()));
+
