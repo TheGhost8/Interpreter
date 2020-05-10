@@ -11,11 +11,6 @@
 
 #pragma once
 
-#ifndef INTERPRETER_FLEX_H
-#define INTERPRETER_FLEX_H
-
-#endif //INTERPRETER_FLEX_H
-
 struct Token
 {
     Type type;

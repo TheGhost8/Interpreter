@@ -2,11 +2,6 @@
 // Created by ghost on 03.05.2020.
 //
 
-#ifndef INTERPRETER_PARSER_H
-#define INTERPRETER_PARSER_H
-
-#endif //INTERPRETER_PARSER_H
-
 #include "flex.h"
 #include "variable.h"
 #include "operations.h"
