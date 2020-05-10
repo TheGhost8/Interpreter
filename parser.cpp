@@ -111,8 +111,7 @@ void Parser::FillFunctionsTypes()
 
 void Parser::Error(std::string lexem) const
 {
-    std::cout << "Expected: " << lexem;
-    exit(0);
+    throw "Expected: " + lexem;
 }
 
 bool Parser::CheckToken(Type required_type) const
