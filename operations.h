@@ -50,7 +50,7 @@ struct AssignmentOperation : Data
         context.stack.pop();
         DataPtr operand1 = context.stack.top();
         context.stack.pop();
-        static_cast<T1*>(operand1.get())->ChangeValue(static_cast<const T2*>(operand2.get())->GetValue());
+        static_cast<T1*>(operand1.get())->ChangeValue(static_cast<T2*>(operand2.get())->GetValue());
     }
 };
 
@@ -59,7 +59,7 @@ struct MathOperation : Data
     explicit MathOperation(Type new_type) : Data(new_type) {}
     virtual ~MathOperation() {}
     virtual void Do(Context& context) final;
-    virtual VariablePtr DoMath(const AbstractVariable& operand1, const AbstractVariable& operand2) const = 0;
+    virtual VariablePtr DoMath(VariablePtr operand1, VariablePtr operand2) const = 0;
 
 private:
     bool CheckVariable(DataPtr variable) const;
@@ -69,9 +69,9 @@ template <typename T1, typename T2, typename T3>
 struct PlusOperation : MathOperation
 {
     PlusOperation() : MathOperation(TokenPlus) {}
-    VariablePtr DoMath(const AbstractVariable& operand1, const AbstractVariable& operand2) const final
+    VariablePtr DoMath(VariablePtr operand1, VariablePtr operand2) const final
     {
-        return VariablePtr(new T3("", operations_type.at(TupleOfTokens(operand1.GetType(), TokenPlus, operand2.GetType())), true, static_cast<const T1&>(operand1).GetValue() + static_cast<const T2&>(operand2).GetValue()));
+        return VariablePtr(new T3("", operations_type.at(TupleOfTokens(operand1->GetType(), TokenPlus, operand2->GetType())), true, static_cast<T1*>(operand1.get())->GetValue() + static_cast<T2*>(operand2.get())->GetValue()));
     }
 };
 
@@ -79,9 +79,9 @@ template <typename T1, typename T2, typename T3>
 struct MinusOperation : MathOperation
 {
     MinusOperation() : MathOperation(TokenMinus) {}
-    VariablePtr DoMath(const AbstractVariable& operand1, const AbstractVariable& operand2) const final
+    VariablePtr DoMath(VariablePtr operand1, VariablePtr operand2) const final
     {
-        return VariablePtr(new T3("", operations_type.at(TupleOfTokens(operand1.GetType(), TokenMinus, operand2.GetType())), true, static_cast<const T1&>(operand1).GetValue() - static_cast<const T2&>(operand2).GetValue()));
+        return VariablePtr(new T3("", operations_type.at(TupleOfTokens(operand1->GetType(), TokenMinus, operand2->GetType())), true, static_cast<T1*>(operand1.get())->GetValue() - static_cast<T2*>(operand2.get())->GetValue()));
     }
 };
 
@@ -89,9 +89,9 @@ template <typename T1, typename T2, typename T3>
 struct MultiplyOperation : MathOperation
 {
     MultiplyOperation() : MathOperation(TokenMultiply) {}
-    VariablePtr DoMath(const AbstractVariable& operand1, const AbstractVariable& operand2) const final
+    VariablePtr DoMath(VariablePtr operand1, VariablePtr operand2) const final
     {
-        return VariablePtr(new T3("", operations_type.at(TupleOfTokens(operand1.GetType(), TokenMultiply, operand2.GetType())), true, static_cast<const T1&>(operand1).GetValue() * static_cast<const T2&>(operand2).GetValue()));
+        return VariablePtr(new T3("", operations_type.at(TupleOfTokens(operand1->GetType(), TokenMultiply, operand2->GetType())), true, static_cast<T1*>(operand1.get())->GetValue() * static_cast<T2*>(operand2.get())->GetValue()));
     }
 };
 
@@ -99,9 +99,9 @@ template <typename T1, typename T2, typename T3>
 struct DivideOperation : MathOperation
 {
     DivideOperation() : MathOperation(TokenDivide) {}
-    VariablePtr DoMath(const AbstractVariable& operand1, const AbstractVariable& operand2) const final
+    VariablePtr DoMath(VariablePtr operand1, VariablePtr operand2) const final
     {
-        return VariablePtr(new T3("", operations_type.at(TupleOfTokens(operand1.GetType(), TokenDivide, operand2.GetType())), true, static_cast<const T1&>(operand1).GetValue() / static_cast<const T2&>(operand2).GetValue()));
+        return VariablePtr(new T3("", operations_type.at(TupleOfTokens(operand1->GetType(), TokenDivide, operand2->GetType())), true, static_cast<T1*>(operand1.get())->GetValue() / static_cast<T2*>(operand2.get())->GetValue()));
     }
 };
 
@@ -109,9 +109,9 @@ template <typename T1, typename T2, typename T3>
 struct DivOperation : MathOperation
 {
     DivOperation() : MathOperation(TokenDiv) {}
-    VariablePtr DoMath(const AbstractVariable& operand1, const AbstractVariable& operand2) const final
+    VariablePtr DoMath(VariablePtr operand1, VariablePtr operand2) const final
     {
-        return VariablePtr(new T3("", operations_type.at(TupleOfTokens(operand1.GetType(), TokenDiv, operand2.GetType())), true, static_cast<int>(static_cast<const T1&>(operand1).GetValue() / static_cast<const T2&>(operand2).GetValue())));
+        return VariablePtr(new T3("", operations_type.at(TupleOfTokens(operand1->GetType(), TokenDiv, operand2->GetType())), true, static_cast<int>(static_cast<T1*>(operand1.get())->GetValue() / static_cast<T2*>(operand2.get())->GetValue())));
     }
 };
 
@@ -119,9 +119,9 @@ template <typename T1, typename T2, typename T3>
 struct ModOperation : MathOperation
 {
     ModOperation() : MathOperation(TokenMod) {}
-    VariablePtr DoMath(const AbstractVariable& operand1, const AbstractVariable& operand2) const final
+    VariablePtr DoMath(VariablePtr operand1, VariablePtr operand2) const final
     {
-        return VariablePtr(new T3("", operations_type.at(TupleOfTokens(operand1.GetType(), TokenMod, operand2.GetType())), true, static_cast<const T1&>(operand1).GetValue() % static_cast<const T2&>(operand2).GetValue()));
+        return VariablePtr(new T3("", operations_type.at(TupleOfTokens(operand1->GetType(), TokenMod, operand2->GetType())), true, static_cast<T1*>(operand1.get())->GetValue() % static_cast<T2*>(operand2.get())->GetValue()));
     }
 };
 
@@ -129,9 +129,9 @@ template <typename T1, typename T2, typename T3>
 struct EqualOperation : MathOperation
 {
     EqualOperation() : MathOperation(TokenEqual) {}
-    VariablePtr DoMath(const AbstractVariable& operand1, const AbstractVariable& operand2) const final
+    VariablePtr DoMath(VariablePtr operand1, VariablePtr operand2) const final
     {
-        return VariablePtr(new T3("", operations_type.at(TupleOfTokens(operand1.GetType(), TokenEqual, operand2.GetType())), true, static_cast<const T1&>(operand1).GetValue() == static_cast<const T2&>(operand2).GetValue()));
+        return VariablePtr(new T3("", operations_type.at(TupleOfTokens(operand1->GetType(), TokenEqual, operand2->GetType())), true, static_cast<T1*>(operand1.get())->GetValue() == static_cast<T2*>(operand2.get())->GetValue()));
     }
 };
 
@@ -139,9 +139,9 @@ template <typename T1, typename T2, typename T3>
 struct UnequalOperation : MathOperation
 {
     UnequalOperation() : MathOperation(TokenUnequal) {}
-    VariablePtr DoMath(const AbstractVariable& operand1, const AbstractVariable& operand2) const final
+    VariablePtr DoMath(VariablePtr operand1, VariablePtr operand2) const final
     {
-        return VariablePtr(new T3("", operations_type.at(TupleOfTokens(operand1.GetType(), TokenUnequal, operand2.GetType())), true, static_cast<const T1&>(operand1).GetValue() != static_cast<const T2&>(operand2).GetValue()));
+        return VariablePtr(new T3("", operations_type.at(TupleOfTokens(operand1->GetType(), TokenUnequal, operand2->GetType())), true, static_cast<T1*>(operand1.get())->GetValue() != static_cast<T2*>(operand2.get())->GetValue()));
     }
 };
 
@@ -149,9 +149,9 @@ template <typename T1, typename T2, typename T3>
 struct MoreOperation : MathOperation
 {
     MoreOperation() : MathOperation(TokenMore) {}
-    VariablePtr DoMath(const AbstractVariable& operand1, const AbstractVariable& operand2) const final
+    VariablePtr DoMath(VariablePtr operand1, VariablePtr operand2) const final
     {
-        return VariablePtr(new T3("", operations_type.at(TupleOfTokens(operand1.GetType(), TokenMore, operand2.GetType())), true, static_cast<const T1&>(operand1).GetValue() > static_cast<const T2&>(operand2).GetValue()));
+        return VariablePtr(new T3("", operations_type.at(TupleOfTokens(operand1->GetType(), TokenMore, operand2->GetType())), true, static_cast<T1*>(operand1.get())->GetValue() > static_cast<T2*>(operand2.get())->GetValue()));
     }
 };
 
@@ -159,9 +159,9 @@ template <typename T1, typename T2, typename T3>
 struct LessOperation : MathOperation
 {
     LessOperation() : MathOperation(TokenLess) {}
-    VariablePtr DoMath(const AbstractVariable& operand1, const AbstractVariable& operand2) const final
+    VariablePtr DoMath(VariablePtr operand1, VariablePtr operand2) const final
     {
-        return VariablePtr(new T3("", operations_type.at(TupleOfTokens(operand1.GetType(), TokenLess, operand2.GetType())), true, static_cast<const T1&>(operand1).GetValue() < static_cast<const T2&>(operand2).GetValue()));
+        return VariablePtr(new T3("", operations_type.at(TupleOfTokens(operand1->GetType(), TokenLess, operand2->GetType())), true, static_cast<T1*>(operand1.get())->GetValue() < static_cast<T2*>(operand2.get())->GetValue()));
     }
 };
 
@@ -169,9 +169,9 @@ template <typename T1, typename T2, typename T3>
 struct MoreOrEqualOperation : MathOperation
 {
     MoreOrEqualOperation() : MathOperation(TokenMoreOrEqual) {}
-    VariablePtr DoMath(const AbstractVariable& operand1, const AbstractVariable& operand2) const final
+    VariablePtr DoMath(VariablePtr operand1, VariablePtr operand2) const final
     {
-        return VariablePtr(new T3("", operations_type.at(TupleOfTokens(operand1.GetType(), TokenMoreOrEqual, operand2.GetType())), true, static_cast<const T1&>(operand1).GetValue() >= static_cast<const T2&>(operand2).GetValue()));
+        return VariablePtr(new T3("", operations_type.at(TupleOfTokens(operand1->GetType(), TokenMoreOrEqual, operand2->GetType())), true, static_cast<T1*>(operand1.get())->GetValue() >= static_cast<T2*>(operand2.get())->GetValue()));
     }
 };
 
@@ -179,8 +179,8 @@ template <typename T1, typename T2, typename T3>
 struct LessOrEqualOperation : MathOperation
 {
     LessOrEqualOperation() : MathOperation(TokenLessOrEqual) {}
-    VariablePtr DoMath(const AbstractVariable& operand1, const AbstractVariable& operand2) const final
+    VariablePtr DoMath(VariablePtr operand1, VariablePtr operand2) const final
     {
-        return VariablePtr(new T3("", operations_type.at(TupleOfTokens(operand1.GetType(), TokenLessOrEqual, operand2.GetType())), true, static_cast<const T1&>(operand1).GetValue() <= static_cast<const T2&>(operand2).GetValue()));
+        return VariablePtr(new T3("", operations_type.at(TupleOfTokens(operand1->GetType(), TokenLessOrEqual, operand2->GetType())), true, static_cast<T1*>(operand1.get())->GetValue() <= static_cast<T2*>(operand2.get())->GetValue()));
     }
 };

@@ -28,7 +28,7 @@ private:
     std::unordered_map<TupleOfTokens, std::shared_ptr<Data>> functions_types;
 
     void FillFunctionsTypes();
-    void Error(std::string lexem) const;
+    [[no_return]] void Error(std::string lexem) const;
     bool CheckToken(Type required_type) const;
     bool TypeCheck() const;
     bool ConstantCheck() const;
