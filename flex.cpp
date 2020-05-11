@@ -264,10 +264,10 @@ Token Flex::TakeToken()
     {
         if (current_state == "Comment")
         {
-            throw '}';
+            throw std::string("}");
         } else if ((current_state == "Quote") && (buffer == "\n"))
         {
-            throw '\'';
+            throw std::string("'");
         }
     }
     if (current_state == "Start")

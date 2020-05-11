@@ -148,7 +148,7 @@ void Parser::NextToken()
         {
             current_token = flex.GetToken(&current_line);
         }
-        catch (const char& exc)
+        catch (const std::string& exc)
         {
             Error("Line: " + std::to_string(current_line) + ";  Expected: " + exc);
         }
