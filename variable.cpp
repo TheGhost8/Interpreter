@@ -4,9 +4,10 @@
 
 #include "variable.h"
 
-AbstractVariable::AbstractVariable(const std::string new_name, Type new_type, bool if_constant) : Data(new_type)
+AbstractVariable::AbstractVariable(const std::string new_name, Type new_type, bool if_constant)
 {
     name = new_name;
+    type = new_type;
     constant = if_constant;
 }
 
@@ -15,14 +16,14 @@ std::string AbstractVariable::GetName() const
     return name;
 }
 
+Type AbstractVariable::GetType() const
+{
+    return type;
+}
+
 bool AbstractVariable::Constant() const
 {
     return constant;
-}
-
-void AbstractVariable::Do(Context& context)
-{
-    context.stack.emplace(VariablePtr(this));
 }
 
 BooleanVariable::BooleanVariable(const std::string new_name, Type new_type, bool if_constant, bool new_value) : AbstractVariable(new_name, new_type, if_constant)

@@ -5,17 +5,17 @@
 #include <stack>
 #include "flex.h"
 #include "type_tables.h"
+#include "variable.h"
 
 #pragma once
 
 using OperationIndex = std::size_t;
+using VariablePtr = std::shared_ptr<AbstractVariable>;
+using Stack = std::stack<VariablePtr>;
 
 class Data
 {
 public:
-    using DataPtr = std::shared_ptr<Data>;
-    using Stack = std::stack<DataPtr>;
-
     struct Context
     {
         OperationIndex operation_index = 0;

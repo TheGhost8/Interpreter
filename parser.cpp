@@ -8,24 +8,25 @@
 
 Parser::Parser(std::string file) : flex(file)
 {
+    current_line = 0;
     FillFunctionsTypes();
-    current_token = flex.GetToken();
+    current_token = flex.GetToken(&current_line);
     has_token = true;
 }
 
 void Parser::Start()
 {
     Program();
-    if ((flex.GetToken().type != TokenEOF) || has_token)
+    if ((flex.GetToken(&current_line).type != TokenEOF) || has_token)
     {
-        Error("no lexems after end");
+        Error("Line: " + std::to_string(current_line) + ";  Expected: no lexems after end");
     }
 }
 
 void Parser::TestOutput() const
 {
     std::cout << "VARIABLES\n";
-    std::cout << "1. " << variables.at("a")->GetName() << " " << variables.at("a")->GetType() << std::endl;
+    //std::cout << "1. " << variables.at("y")->GetName() << " " << variables.at("y")->GetType() << std::endl;
     std::cout << "\n";
     for (int i = 0; i < commands.size(); ++i)
     {
@@ -109,9 +110,9 @@ void Parser::FillFunctionsTypes()
     functions_types.insert(std::pair<TupleOfTokens, DataPtr>(TupleOfTokens(TokenDouble, TokenLessOrEqual, TokenDouble), std::make_shared<LessOrEqualOperation<DoubleVariable, DoubleVariable, BooleanVariable>>()));
 }
 
-[[no_return]] void Parser::Error(std::string lexem) const
+[[no_return]] void Parser::Error(std::string lexem)
 {
-    throw "Expected: " + lexem;
+    throw lexem;
 }
 
 bool Parser::CheckToken(Type required_type) const
@@ -143,32 +144,39 @@ void Parser::NextToken()
 {
     if (!has_token)
     {
-        current_token = flex.GetToken();
+        try
+        {
+            current_token = flex.GetToken(&current_line);
+        }
+        catch (const char& exc)
+        {
+            Error("Line: " + std::to_string(current_line) + ";  Expected: " + exc);
+        }
         has_token = !has_token;
     }
 }
 
-std::shared_ptr<AbstractVariable> Parser::ConstantConversion(Token constant)
+VariablePtr Parser::ConstantConversion(Token constant)
 {
     if (constant.type == TokenBooleanConst)
     {
         BooleanVariable* new_variable = new BooleanVariable(constant.lexem, TokenBoolean, true, (constant.lexem == "true"));
-        return std::shared_ptr<AbstractVariable>(new_variable);
+        return VariablePtr(new_variable);
     }
     if (constant.type == TokenStringConst)
     {
         StringVariable* new_variable = new StringVariable(constant.lexem, TokenString, true, constant.lexem);
-        return std::shared_ptr<AbstractVariable>(new_variable);
+        return VariablePtr(new_variable);
     }
     if (constant.type == TokenIntegerConst)
     {
         IntegerVariable* new_variable = new IntegerVariable(constant.lexem, TokenInteger, true, std::stoi(constant.lexem));
-        return std::shared_ptr<AbstractVariable>(new_variable);
+        return VariablePtr(new_variable);
     }
     if (constant.type == TokenDoubleConst)
     {
         DoubleVariable* new_variable = new DoubleVariable(constant.lexem, TokenDouble, true, std::stod(constant.lexem));
-        return std::shared_ptr<AbstractVariable>(new_variable);
+        return VariablePtr(new_variable);
     }
 }
 
@@ -180,13 +188,13 @@ void Parser::Program()
         NextToken();
         if (!CheckToken(TokenIdentifier))
         {
-            Error("Identifier");
+            Error("Line: " + std::to_string(current_line) + ";  Expected: identifier");
         }
         has_token = !has_token;
         NextToken();
         if (!CheckToken(TokenSemicolon))
         {
-            Error(";");
+            Error("Line: " + std::to_string(current_line) + ";  Expected: ;");
         }
         has_token = !has_token;
     }
@@ -203,7 +211,7 @@ void Parser::VariableDeclarationBlock()
         NextToken();
         if (!CheckToken(TokenIdentifier))
         {
-            Error("Identifier");
+            Error("Line: " + std::to_string(current_line) + ";  Expected: identifier");
         }
         has_token = !has_token;
         VariableDeclaration();
@@ -228,7 +236,7 @@ void Parser::VariableDeclaration()
         NextToken();
         if (!CheckToken(TokenIdentifier))
         {
-            Error("Identifier");
+            Error("Line: " + std::to_string(current_line) + ";  Expected: identifier");
         }
         variable_names.emplace_back(current_token);
         has_token = !has_token;
@@ -245,32 +253,28 @@ void Parser::VariableDeclaration()
                 case TokenBoolean:
                     while (!variable_names.empty())
                     {
-                        variables.insert(std::pair<std::string, std::shared_ptr<AbstractVariable>>(variable_names.back().lexem, std::shared_ptr<AbstractVariable>(
-                                static_cast<AbstractVariable*>(new BooleanVariable(variable_names.back().lexem, TokenBoolean, false)))));
+                        variables.insert(std::pair<std::string, VariablePtr>(variable_names.back().lexem, VariablePtr(new BooleanVariable(variable_names.back().lexem, TokenBoolean, false))));
                         variable_names.pop_back();
                     }
                     break;
                 case TokenString:
                      while (!variable_names.empty())
                      {
-                         variables.insert(std::pair<std::string, std::shared_ptr<AbstractVariable>>(variable_names.back().lexem, std::shared_ptr<AbstractVariable>(
-                                 static_cast<AbstractVariable*>(new StringVariable(variable_names.back().lexem, TokenString, false)))));
+                         variables.insert(std::pair<std::string, VariablePtr>(variable_names.back().lexem, VariablePtr(new StringVariable(variable_names.back().lexem, TokenString, false))));
                          variable_names.pop_back();
                      }
                     break;
                 case TokenInteger:
                     while (!variable_names.empty())
                     {
-                        variables.insert(std::pair<std::string, std::shared_ptr<AbstractVariable>>(variable_names.back().lexem, std::shared_ptr<AbstractVariable>(
-                                static_cast<AbstractVariable*>(new IntegerVariable(variable_names.back().lexem, TokenInteger, false)))));
+                        variables.insert(std::pair<std::string, VariablePtr>(variable_names.back().lexem, VariablePtr(new IntegerVariable(variable_names.back().lexem, TokenInteger, false))));
                         variable_names.pop_back();
                     }
                     break;
                 case TokenDouble:
                     while (!variable_names.empty())
                     {
-                        variables.insert(std::pair<std::string, std::shared_ptr<AbstractVariable>>(variable_names.back().lexem, std::shared_ptr<AbstractVariable>(
-                                static_cast<AbstractVariable*>(new DoubleVariable(variable_names.back().lexem, TokenDouble, false)))));
+                        variables.insert(std::pair<std::string, VariablePtr>(variable_names.back().lexem, VariablePtr(new DoubleVariable(variable_names.back().lexem, TokenDouble, false))));
                         variable_names.pop_back();
                     }
                     break;
@@ -279,18 +283,18 @@ void Parser::VariableDeclaration()
             NextToken();
             if (!CheckToken(TokenSemicolon))
             {
-                Error(";");
+                Error("Line: " + std::to_string(current_line) + ";  Expected: ;");
             }
             has_token = !has_token;
         }
         else
         {
-            Error("correct type");
+            Error("Line: " + std::to_string(current_line) + ";  Expected: correct type");
         }
     }
     else
     {
-        Error(":");
+        Error("Line: " + std::to_string(current_line) + ";  Expected: :");
     }
 }
 
@@ -311,18 +315,18 @@ void Parser::MainBlock()
             NextToken();
             if (!CheckToken(TokenPoint))
             {
-                Error(".");
+                Error("Line: " + std::to_string(current_line) + ";  Expected: . after end");
             }
             has_token = !has_token;
         }
         else
         {
-            Error("end");
+            Error("Line: " + std::to_string(current_line) + ";  Expected: end");
         }
     }
     else
     {
-        Error("begin");
+        Error("Line: " + std::to_string(current_line) + ";  Expected: begin");
     }
 }
 
@@ -354,7 +358,7 @@ void Parser::Statement()
         Writeln();
     } else
     {
-        Error("loop, or if, or assignment, or compound statement");
+        Error("Line: " + std::to_string(current_line) + ";  Expected: loop, or if, or assignment, or compound statement");
     }
 }
 
@@ -363,24 +367,24 @@ void Parser::Writeln()
     NextToken();
     if (!CheckToken(TokenLeftParenthesis))
     {
-        Error("(");
+        Error("Line: " + std::to_string(current_line) + ";  Expected: (");
     }
     has_token = !has_token;
     NextToken();
     if (!CheckToken(TokenIdentifier) && (!ConstantCheck()))
     {
-        Error("identifier or constant");
+        Error("Line: " + std::to_string(current_line) + ";  Expected: identifier or constant");
     }
-    DataPtr output_variable;
+    VariablePtr output_variable;
     if (CheckToken(TokenIdentifier))
     {
         output_variable = variables.at(current_token.lexem);
-        commands.emplace_back(output_variable);
+        commands.emplace_back(std::shared_ptr<Data>(new PushVariable(output_variable)));
     }
     else
     {
         output_variable = ConstantConversion(current_token);
-        commands.emplace_back(output_variable);
+        commands.emplace_back(DataPtr(new PushVariable(output_variable)));
     }
     switch (output_variable->GetType())
     {
@@ -401,13 +405,13 @@ void Parser::Writeln()
     NextToken();
     if (!CheckToken(TokenRightParenthesis))
     {
-        Error(")");
+        Error("Line: " + std::to_string(current_line) + ";  Expected: )");
     }
     has_token = !has_token;
     NextToken();
     if (!CheckToken(TokenSemicolon))
     {
-        Error(";");
+        Error("Line: " + std::to_string(current_line) + ";  Expected: ;");
     }
     has_token = !has_token;
 }
@@ -426,19 +430,23 @@ void Parser::CompoundStatement()
         NextToken();
         if (!CheckToken(TokenSemicolon))
         {
-            Error(";");
+            Error("Line: " + std::to_string(current_line) + ";  Expected: ; after end");
         }
         has_token = !has_token;
     }
     else
     {
-        Error("end");
+        Error("Line: " + std::to_string(current_line) + ";  Expected: end");
     }
 }
 
 void Parser::AssignmentStatement()
 {
-    commands.emplace_back(variables.at(current_token.lexem));
+    if (variables.count(current_token.lexem) == 0)
+    {
+        Error("Line: " + std::to_string(current_line) + ";  Undefined identifier");
+    }
+    commands.emplace_back(DataPtr(new PushVariable(variables.at(current_token.lexem))));
     Type first_type = variables.at(current_token.lexem)->GetType();
     NextToken();
     if (CheckToken(TokenAssign))
@@ -448,19 +456,19 @@ void Parser::AssignmentStatement()
         TupleOfTokens current_operation(first_type, TokenAssign, second_type);
         if (operations_type.count(current_operation) == 0)
         {
-            Error("correct types of operands in assignment");
+            Error("Line: " + std::to_string(current_line) + ";  Expected: correct types of operands in assignment");
         }
         commands.emplace_back(functions_types.at(current_operation));
         NextToken();
         if (!CheckToken(TokenSemicolon))
         {
-            Error(";");
+            Error("Line: " + std::to_string(current_line) + ";  Expected: ;");
         }
         has_token = !has_token;
     }
     else
     {
-        Error(":=");
+        Error("Line: " + std::to_string(current_line) + ";  Expected: :=");
     }
 }
 
@@ -478,31 +486,10 @@ Type Parser::Expression()
         TupleOfTokens current_operation(return_type, operation_type, second_operand);
         if (operations_type.count(current_operation) == 0)
         {
-            Error("correct types of operands in relation operation");
+            Error("Line: " + std::to_string(current_line) + ";  Expected: correct types of operands in relation operation");
         }
         return_type = operations_type.at(current_operation);
         commands.emplace_back(functions_types.at(current_operation));
-        /*switch (operation_type)
-        {
-            case TokenEqual:
-                commands.emplace_back(std::shared_ptr<Data>(new EqualOperation()));
-                break;
-            case TokenUnequal:
-                commands.emplace_back(std::shared_ptr<Data>(new UnequalOperation()));
-                break;
-            case TokenMore:
-                commands.emplace_back(std::shared_ptr<Data>(new MoreOperation()));
-                break;
-            case TokenLess:
-                commands.emplace_back(std::shared_ptr<Data>(new LessOperation()));
-                break;
-            case TokenMoreOrEqual:
-                commands.emplace_back(std::shared_ptr<Data>(new MoreOrEqualOperation()));
-                break;
-            case TokenLessOrEqual:
-                commands.emplace_back(std::shared_ptr<Data>(new LessOrEqualOperation()));
-                break;
-        }*/
         NextToken();
     }
     return return_type;
@@ -526,7 +513,7 @@ Type Parser::SimpleExpression()
         Token unary_zero;
         unary_zero.lexem = "0";
         unary_zero.type = TokenIntegerConst;
-        commands.emplace_back(ConstantConversion(unary_zero));
+        commands.emplace_back(DataPtr(new PushVariable(ConstantConversion(unary_zero))));
         operation_type = Sign();
         NextToken();
         if (CheckToken(TokenIdentifier) || ConstantCheck() || CheckToken(TokenLeftParenthesis))
@@ -535,23 +522,14 @@ Type Parser::SimpleExpression()
         }
         else
         {
-            Error("term");
+            Error("Line: " + std::to_string(current_line) + ";  Expected: term");
         }
         TupleOfTokens current_operation(TokenInteger, operation_type, return_type);
         commands.emplace_back(functions_types.at(current_operation));
-        /*switch (operation_type)
-        {
-            case TokenPlus:
-                commands.emplace_back(std::shared_ptr<Data>(new PlusOperation()));
-                break;
-            case TokenMinus:
-                commands.emplace_back(std::shared_ptr<Data>(new MinusOperation()));
-                break;
-        }*/
     }
     else
     {
-        Error("sign or term");
+        Error("Line: " + std::to_string(current_line) + ";  Expected: sign or term");
     }
     NextToken();
     while (CheckToken(TokenPlus) || CheckToken(TokenMinus))
@@ -564,24 +542,15 @@ Type Parser::SimpleExpression()
         }
         else
         {
-            Error("term");
+            Error("Line: " + std::to_string(current_line) + ";  Expected: term");
         }
         TupleOfTokens current_operation(return_type, operation_type, second_operand);
         if (operations_type.count(current_operation) == 0)
         {
-            Error("correct types of operands in plus/minus operation");
+            Error("Line: " + std::to_string(current_line) + ";  Expected: correct types of operands in plus/minus operation");
         }
         return_type = operations_type.at(current_operation);
         commands.emplace_back(functions_types.at(current_operation));
-        /*switch (operation_type)
-        {
-            case TokenPlus:
-                commands.emplace_back(std::shared_ptr<Data>(new PlusOperation()));
-                break;
-            case TokenMinus:
-                commands.emplace_back(std::shared_ptr<Data>(new MinusOperation()));
-                break;
-        }*/
         NextToken();
     }
     return return_type;
@@ -608,30 +577,15 @@ Type Parser::Term()
         }
         else
         {
-            Error("factor");
+            Error("Line: " + std::to_string(current_line) + ";  Expected: factor");
         }
         TupleOfTokens current_operation(return_type, operation_type, second_operand);
         if (operations_type.count(current_operation) == 0)
         {
-            Error("correct types of operands in multiplication operation");
+            Error("Line: " + std::to_string(current_line) + ";  Expected: correct types of operands in multiplication operation");
         }
         return_type = operations_type.at(current_operation);
         commands.emplace_back(functions_types.at(current_operation));
-        /*switch (operation_type)
-        {
-            case TokenMultiply:
-                commands.emplace_back(std::shared_ptr<Data>(new MultiplyOperation()));
-                break;
-            case TokenDivide:
-                commands.emplace_back(std::shared_ptr<Data>(new DivideOperation()));
-                break;
-            case TokenDiv:
-                commands.emplace_back(std::shared_ptr<Data>(new DivOperation()));
-                break;
-            case TokenMod:
-                commands.emplace_back(std::shared_ptr<Data>(new ModOperation()));
-                break;
-        }*/
         NextToken();
     }
     return return_type;
@@ -648,14 +602,18 @@ Type Parser::Factor()
     if (CheckToken(TokenIdentifier))
     {
         has_token = !has_token;
-        commands.emplace_back(variables.at(current_token.lexem));
+        if (variables.count(current_token.lexem) == 0)
+        {
+            Error("Line: " + std::to_string(current_line) + ";  Undefined identifier");
+        }
+        commands.emplace_back(DataPtr(new PushVariable(variables.at(current_token.lexem))));
         return variables.at(current_token.lexem)->GetType();
     }
     if (ConstantCheck())
     {
         has_token = !has_token;
         std::shared_ptr<AbstractVariable> temporary_ptr = ConstantConversion(current_token);
-        commands.emplace_back(temporary_ptr);
+        commands.emplace_back(new PushVariable(temporary_ptr));
         return temporary_ptr->GetType();
     }
     if (CheckToken(TokenLeftParenthesis))
@@ -665,12 +623,12 @@ Type Parser::Factor()
         NextToken();
         if (!CheckToken(TokenRightParenthesis))
         {
-            Error(")");
+            Error("Line: " + std::to_string(current_line) + ";  Expected: )");
         }
         has_token = !has_token;
         return return_type;
     }
-    Error("WTF!?");
+    Error("Line: " + std::to_string(current_line) + ";  Expected: identifier or constant or expression");
 }
 
 void Parser::If()
@@ -678,7 +636,7 @@ void Parser::If()
     Type condition_type = Expression();
     if (condition_type != TokenBoolean)
     {
-        Error("boolean expression in if");
+        Error("Line: " + std::to_string(current_line) + ";  Expected: boolean expression in if");
     }
     OperationIndex remember_position = commands.size();
     commands.emplace_back(std::shared_ptr<Data>(new Data()));
@@ -701,27 +659,28 @@ void Parser::If()
     }
     else
     {
-        Error("then");
+        Error("Line: " + std::to_string(current_line) + ";  Expected: then");
     }
 
 }
 
 void Parser::While()
 {
+    OperationIndex start_position = commands.size();
     NextToken();
     Expression();
-    OperationIndex remember_position = commands.size();
+    OperationIndex if_position = commands.size();
     commands.emplace_back(std::shared_ptr<Data>(new Data()));
     NextToken();
     if (!CheckToken(TokenDo))
     {
-        Error("do");
+        Error("Line: " + std::to_string(current_line) + ";  Expected: do");
     }
     has_token = !has_token;
     NextToken();
     Statement();
-    commands.emplace_back(std::shared_ptr<Data>(new Go(remember_position, TokenGoTo)));
-    commands[remember_position] = std::shared_ptr<Data>(new IfGo(commands.size(), TokenIf));
+    commands.emplace_back(std::shared_ptr<Data>(new Go(start_position, TokenGoTo)));
+    commands[if_position] = std::shared_ptr<Data>(new IfGo(commands.size(), TokenIf));
 }
 
 void Parser::For()
@@ -733,7 +692,7 @@ void Parser::For()
         NextToken();
         if (!CheckToken(TokenAssign))
         {
-            Error(":=");
+            Error("Line: " + std::to_string(current_line) + ";  Expected: :=");
         }
         has_token = !has_token;
         NextToken();
@@ -741,7 +700,7 @@ void Parser::For()
         NextToken();
         if (!CheckToken(TokenDo))
         {
-            Error("do");
+            Error("Line: " + std::to_string(current_line) + ";  Expected: do");
         }
         has_token = !has_token;
         NextToken();
@@ -749,7 +708,7 @@ void Parser::For()
     }
     else
     {
-        Error("Identifier");
+        Error("Line: " + std::to_string(current_line) + ";  Expected: identifier");
     }
 }
 
@@ -765,6 +724,6 @@ void Parser::ForList()
     }
     else
     {
-        Error("to or downto");
+        Error("Line: " + std::to_string(current_line) + ";  Expected: to or downto");
     }
 }

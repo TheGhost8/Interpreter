@@ -3,24 +3,21 @@
 //
 
 #include "flex.h"
-#include "data.h"
 
 #pragma once
 
-using DataPtr = std::shared_ptr<Data>;
-using Stack = std::stack<DataPtr>;
-
-struct AbstractVariable : Data
+struct AbstractVariable
 {
     using VariablePtr = std::shared_ptr<AbstractVariable>;
 
 public:
     AbstractVariable(std::string new_name, Type new_type, bool if_constant);
     std::string GetName() const;
+    Type GetType() const;
     bool Constant() const;
-    void Do(Context& context) final;
 
 private:
+    Type type;
     std::string name;
     bool constant;
 };

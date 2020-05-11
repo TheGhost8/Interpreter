@@ -20,7 +20,7 @@ public:
 
 private:
     Parser parser;
-    Data::Context program_stack;
+    Data::Context context;
 
     bool CheckValue(Type type);
 };

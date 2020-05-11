@@ -9,11 +9,12 @@
 
 #pragma once
 
+using DataPtr = std::shared_ptr<Data>;
+
 class Parser
 {
 public:
     std::vector<std::shared_ptr<Data>> commands;
-    std::unordered_map<std::string, std::shared_ptr<AbstractVariable>> variables;
 
     explicit Parser(std::string file);
 
@@ -23,12 +24,14 @@ public:
 
 private:
     bool has_token;
+    u_int32_t current_line;
     Token current_token;
     Flex flex;
+    std::unordered_map<std::string, VariablePtr> variables;
     std::unordered_map<TupleOfTokens, std::shared_ptr<Data>> functions_types;
 
     void FillFunctionsTypes();
-    [[no_return]] void Error(std::string lexem) const;
+    void Error(std::string lexem);
     bool CheckToken(Type required_type) const;
     bool TypeCheck() const;
     bool ConstantCheck() const;

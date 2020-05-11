@@ -16,13 +16,19 @@ bool Flex::HasLexem()
     return input_file.peek() != EOF;
 }
 
-Token Flex::GetToken()
+Token Flex::GetToken(u_int32_t* current_line)
 {
-    Token token = TakeToken();
-    while (token.type == TokenUndefined)
+    Token token;
+    do
     {
         token = TakeToken();
+        if (token.type == TokenEnter)
+        {
+            ++(*current_line);
+        }
+        token.line = *current_line;
     }
+    while ((token.type == TokenUndefined) || (SpacesCheck(&token.lexem)));
     return token;
 }
 
@@ -182,6 +188,9 @@ void Flex::FillTypes(std::unordered_map<std::string, Type>* all_types)
     (*all_types)["\\"] = TokenDivide;
     (*all_types)["div"] = TokenDiv;
     (*all_types)["mod"] = TokenMod;
+    (*all_types)[" "] = TokenSpace;
+    (*all_types)["\t"] = TokenTab;
+    (*all_types)["\n"] = TokenEnter;
     (*all_types)[std::string(1, EOF)] = TokenEOF;
 }
 
@@ -232,6 +241,10 @@ Token Flex::TakeToken()
     GetNextSymbol(&buffer);
     while (((transition_table.at(current_state).count(buffer) != 0) || (current_state == "Comment") || (current_state == "Quote")) && (HasLexem()))
     {
+        if ((current_state == "Quote") && (buffer == "\n"))
+        {
+            break;
+        }
         if (transition_table.at(current_state).count(buffer) != 0)
         {
             if (transition_table.at(current_state).at(buffer) == "Start")
@@ -240,19 +253,26 @@ Token Flex::TakeToken()
             }
             current_state = transition_table.at(current_state).at(buffer);
         }
-        if ((current_state != "Comment") && (!SpacesCheck(&buffer)))
+        if (current_state != "Comment")
         {
             token.lexem += buffer;
         }
         buffer.clear();
         GetNextSymbol(&buffer);
     }
+    if ((!HasLexem()) || ((current_state == "Quote") && (buffer == "\n")))
+    {
+        if (current_state == "Comment")
+        {
+            throw '}';
+        } else if ((current_state == "Quote") && (buffer == "\n"))
+        {
+            throw '\'';
+        }
+    }
     if (current_state == "Start")
     {
-        if (!SpacesCheck(&buffer))
-        {
-            token.lexem += buffer;
-        }
+        token.lexem += buffer;
     }
     else
     {

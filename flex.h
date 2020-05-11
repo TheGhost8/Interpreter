@@ -15,6 +15,7 @@ struct Token
 {
     Type type;
     std::string lexem;
+    u_int32_t  line;
 };
 
 class Flex
@@ -24,7 +25,7 @@ public:
 
     bool HasLexem();
 
-    Token GetToken(/*std::unordered_map<std::string, std::unordered_map<std::string, std::string>>* transition_table, std::unordered_map<std::string, Token::Type>* all_types, std::ifstream* input_file*/);
+    Token GetToken(u_int32_t* current_line);
 
 private:
 
@@ -40,7 +41,7 @@ private:
 
     void AddSpaces(std::unordered_map<std::string, std::string>* map, std::string Destination);
 
-    void FillDFA(/*std::unordered_map<std::string, std::unordered_map<std::string, std::string>>* transition_table*/);
+    void FillDFA();
 
     void FillTypes(std::unordered_map<std::string, Type>* all_types);
 
@@ -50,9 +51,9 @@ private:
 
     bool ASCIICheck(std::string str);
 
-    void GetNextSymbol(/*std::ifstream* input_file, */std::string* str);
+    void GetNextSymbol(std::string* str);
 
-    void UngetNextSymbol(/*std::ifstream* input_file, */std::string* str);
+    void UngetNextSymbol(std::string* str);
 
-    Token TakeToken(/*std::unordered_map<std::string, std::unordered_map<std::string, std::string>>* transition_table, std::unordered_map<std::string, Token::Type>* all_types, std::ifstream* input_file*/);
+    Token TakeToken();
 };

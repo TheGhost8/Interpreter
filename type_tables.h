@@ -54,8 +54,11 @@ enum Type
     TokenDiv,
     TokenMod,
     TokenIdentifier,
-    TokenUndefined,
+    TokenSpace,
+    TokenTab,
+    TokenEnter,
     TokenEOF,
+    TokenUndefined,
 };
 
 using TupleOfTokens = std::tuple<Type, Type, Type>;

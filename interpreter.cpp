@@ -7,17 +7,10 @@
 void Interpreter::Execute()
 {
     parser.Start();
-    while (program_stack.operation_index < parser.commands.size())
+    while (context.operation_index < parser.commands.size())
     {
-        if (CheckValue(parser.commands[program_stack.operation_index]->GetType()))
-        {
-            program_stack.stack.emplace(parser.commands[program_stack.operation_index]);
-        }
-        else
-        {
-            parser.commands[program_stack.operation_index]->Do(program_stack);
-        }
-        ++program_stack.operation_index;
+        parser.commands[context.operation_index]->Do(context);
+        ++context.operation_index;
     }
 }
 
