@@ -253,7 +253,7 @@ Token Flex::TakeToken()
             }
             current_state = transition_table.at(current_state).at(buffer);
         }
-        if (current_state != "Comment")
+        if ((current_state != "Comment") && (buffer != "'"))
         {
             token.lexem += buffer;
         }
@@ -270,7 +270,7 @@ Token Flex::TakeToken()
             throw std::string("'");
         }
     }
-    if (current_state == "Start")
+    if ((current_state == "Start") && (buffer != "'"))
     {
         token.lexem += buffer;
     }
