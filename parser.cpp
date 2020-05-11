@@ -8,7 +8,7 @@
 
 Parser::Parser(std::string file) : flex(file)
 {
-    current_line = 0;
+    current_line = 1;
     FillFunctionsTypes();
     current_token = flex.GetToken(&current_line);
     has_token = true;
